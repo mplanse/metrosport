@@ -6,13 +6,12 @@
     <title>Metro Sport</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/nav.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg p-2">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="{{ route('lligues.index') }}">
                 <img src="{{ asset('assets/iconos_nav/logo_metrosport.png') }}" alt="Metro Sport" height="70">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -27,7 +26,8 @@
                 </ul>
                 <div class="ms-auto nav-icons d-flex align-items-center">
                     <img src="{{ asset('assets/iconos_nav/notificaciones.png') }}" alt="Notificaciones">
-                    <img src="{{ asset('assets/iconos_nav/ruta_foto_perfil.png') }}" alt="Perfil">
+                    <img src="{{ Auth::user()->foto_perfil ? asset('storage/' . Auth::user()->foto_perfil) : asset('assets/iconos_nav/default.png') }}" 
+                        alt="Perfil">
                     <img src="{{ asset('assets/iconos_nav/cerrar_sesion.png') }}" alt="Logout">
                 </div>
             </div>
