@@ -2,7 +2,7 @@
 
 @section('content')
 <div id="app" class="container mt-4">
-    <h3>Lligues disponibles</h3>
+    <p>Creiem que aquestes lligues poden interessar-te:</p>
     <div class="row">
         <div class="col-md-4 mb-4" v-for="lliga in lligues" :key="lliga.id_lliga">
             <div class="card">
@@ -11,10 +11,10 @@
                 <div class="card-body">
                     <h5 class="card-title">@{{ lliga.nom_lliga }}</h5>
                     <p class="card-text">@{{ lliga.lloc_lliga }}</p>
-                    <p class="card-text">
+                    <!-- <p class="card-text">
                         Participants: @{{ lliga.participants_actualment }} de @{{ lliga.nro_equips_participants }} equips inscrits
                     </p>
-                    <p class="card-text fw-bold">@{{ lliga.preu_entrada }}€</p>
+                    <p class="card-text fw-bold">@{{ lliga.preu_entrada }}€</p> -->
                 </div>
             </div>
         </div>

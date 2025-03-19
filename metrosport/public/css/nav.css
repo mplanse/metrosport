@@ -1,0 +1,17 @@
+.navbar {
+    background-color: #ECF0F1;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+.nav-link {
+    font-weight: bold;
+    color: black;
+    padding: 10px;
+}
+.nav-link:hover, .nav-link.active {
+    text-decoration: underline;
+}
+.nav-icons img {
+    height: 24px;
+    margin-left: 15px;
+    cursor: pointer;
+}
