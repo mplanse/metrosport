@@ -1,27 +1,28 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\LligaController;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/home', function () {
-    return view('layouts.app');
+// Rutas protegidas con middleware auth
+Route::middleware('auth')->group(function () {
+    Route::get('/home', function () {
+        return view('layouts.app');
+    })->name('home');
+
+    Route::get('/lligues', [LligaController::class, 'index'])->name('lligues.index');
+    Route::get('/api/lligues', [LligaController::class, 'getLligues'])->name('lligues.api');
+
+    Route::post('/logout', [UsuarioController::class, 'logout'])->name('logout');
 });
 
-Route::get('/lligues', [LligaController::class, 'index'])->name('lligues.index');
-Route::get('/api/lligues', [LligaController::class, 'getLligues'])->name('lligues.api');
+// Rutas de autenticación
+Route::get('/login', [UsuarioController::class, 'showLogin'])->name('login');
+Route::post('/login', [UsuarioController::class, 'login']);
 
+Route::get('/register', [UsuarioController::class, 'showRegister'])->name('register');
+Route::post('/register', [UsuarioController::class, 'register']);
