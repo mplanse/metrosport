@@ -1,3 +1,2 @@
-.env
-
-metrosport/.env
+metrosport.env
+.vscode/launch.json
