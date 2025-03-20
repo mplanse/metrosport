@@ -25,12 +25,6 @@ Route::get('/lligues/{id}', [LligaController::class, 'getLligaInfo'])->name('lli
 Route::get('/lligues', [LligaController::class, 'getLligues'])->name('lligues.api');
 Route::get('/lliga/{id}', [LligaController::class, 'getLligaInfo']);
 
-Route::middleware('auth')->group(function () {
 
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
-});
 
 
