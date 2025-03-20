@@ -7,7 +7,7 @@
         <div class="col-lg-4 col-md-6 col-sm-12 mb-4" v-for="lliga in lligues" :key="lliga.id_lliga">
             <div class="card h-100 shadow-sm border-0">
                 <img :src="'assets/fotos_lliga/' + lliga.url_imagen" class="card-img-top img-fixed" alt="Lliga">
-                
+
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between">
                         <h5 class="card-title flex-grow-1 text-truncate">@{{ lliga.nom_lliga }}</h5>
@@ -37,14 +37,15 @@ const app = Vue.createApp({
     },
     methods: {
         fetchLligues() {
-            axios.get("{{ route('lligues.api') }}")
-                .then(response => {
-                    this.lligues = response.data;
-                })
-                .catch(error => {
-                    console.error("Error obteniendo las ligas:", error);
-                });
-        }
+    axios.get("{{ route('lligues.api') }}", { withCredentials: true })
+        .then(response => {
+            this.lligues = response.data;
+        })
+        .catch(error => {
+            console.error("Error obteniendo las ligas:", error);
+        });
+}
+
     }
 });
 app.mount("#app");

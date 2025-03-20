@@ -18,13 +18,19 @@ use App\Http\Controllers\LligaController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::get('/lligues', [LligaController::class, 'getLligues'])->name('lligues.api');
+Route::get('/lligues/{id}', [LligaController::class, 'getLligaInfo'])->name('lligues.info');
+
 
 Route::get('/lligues', [LligaController::class, 'getLligues'])->name('lligues.api');
 Route::get('/lliga/{id}', [LligaController::class, 'getLligaInfo']);
 
 Route::middleware('auth')->group(function () {
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 });
 
 

@@ -1,12 +1,15 @@
 @extends('layouts.nav')
 
 @section('content')
-<div id="app" class="container mt-4">
+<!-- Agregamos data-url con la ruta correcta para la API -->
+<div id="app"
+    data-url="{{ route('lligues.info', ['id' => '__ID__']) }}"
+    class="container mt-4">
+
     <h3>@{{ lliga.nom_lliga }}</h3>
-    
+
     <div class="card">
         <img :src="'/assets/fotos_lliga/' + lliga.url_imagen" class="card-img-top" alt="Lliga">
-        
         <div class="card-body">
             <h5 class="card-title">@{{ lliga.nom_lliga }}</h5>
             <p class="card-text"><strong>Ubicación:</strong> @{{ lliga.lloc_lliga }}</p>
@@ -36,12 +39,13 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Partit @{{ partit.id_partit }}</h5>
-                    <p class="card-text"><strong>Estado:</strong> @{{ partit.estat.nom_estat }}</p>
-                    <p class="card-text"><strong>Ubicación:</strong> @{{ partit.ubicacio.nom_ubicacio }}</p>
+                    <p class="card-text" v-if="partit.estat"><strong>Estado:</strong> @{{ partit.estat.nom_estat }}</p>
+                    <p class="card-text" v-if="partit.ubicacio"><strong>Ubicación:</strong> @{{ partit.ubicacio.nom_ubicacio }}</p>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -50,7 +54,7 @@
 const app = Vue.createApp({
     data() {
         return {
-            lliga: {} 
+            lliga: {}
         };
     },
     mounted() {
@@ -58,9 +62,18 @@ const app = Vue.createApp({
     },
     methods: {
         fetchLliga() {
-            const lligaId = 1; // Se espera que Laravel pase el ID desde la ruta
-            axios.get(`/api/lliga/${lligaId}`)
+            // Obtiene la URL generada por Laravel en el atributo "data-url"
+            let url = document.getElementById('app').getAttribute('data-url');
+
+            // Reemplaza el marcador __ID__ con el ID real de la liga desde la URL
+            const lligaId = window.location.pathname.split('/').pop();
+            url = url.replace('__ID__', lligaId);
+
+            console.log("URL final de la API:", url); // 👀 Verifica la URL en la consola
+
+            axios.get(url)
                 .then(response => {
+                    console.log("Respuesta de la API:", response.data); // 👀 Verifica la respuesta
                     this.lliga = response.data;
                 })
                 .catch(error => {
@@ -69,6 +82,7 @@ const app = Vue.createApp({
         }
     }
 });
+
 app.mount("#app");
 </script>
 @endsection
