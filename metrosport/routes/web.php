@@ -14,8 +14,12 @@ Route::middleware('auth')->group(function () {
         return view('layouts.app');
     })->name('home');
 
+    Route::get('/lligues/{id}', function ($id) {
+        return view('lligues.lliga', ['id' => $id]);
+    })->name('lliga.show');
+    
+
     Route::get('/lligues', [LligaController::class, 'index'])->name('lligues.index');
-    Route::get('/api/lligues', [LligaController::class, 'getLligues'])->name('lligues.api');
 
     Route::post('/logout', [UsuarioController::class, 'logout'])->name('logout');
 });
@@ -26,3 +30,8 @@ Route::post('/login', [UsuarioController::class, 'login']);
 
 Route::get('/register', [UsuarioController::class, 'showRegister'])->name('register');
 Route::post('/register', [UsuarioController::class, 'register']);
+
+
+Route::get('/pepe', function () {
+    return view('lligues.pepe');
+});

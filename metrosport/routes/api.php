@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LligaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +19,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/leagues', [\App\Http\Controllers\LeagueController::class, 'index']);
+Route::middleware('auth')->group(function () {
+
+    Route::get('/lligues', [LligaController::class, 'getLligues'])->name('lligues.api');
+    Route::get('/lliga/{id}', [LligaController::class, 'getLligaInfo']);
+});
+
+

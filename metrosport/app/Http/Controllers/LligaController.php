@@ -16,4 +16,15 @@ class LligaController extends Controller
     {
         return response()->json(Lliga::all());
     }
+
+public function getLligaInfo($id)
+{
+    $lliga = Lliga::with(['equips', 'partits.estat', 'partits.ubicacio'])->find($id);
+
+    if (!$lliga) {
+        return response()->json(['error' => 'Liga no encontrada'], 404);
+    }
+
+    return response()->json($lliga);
+}
 }
