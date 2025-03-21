@@ -7,9 +7,10 @@
     class="container mt-4">
 
     <h3>@{{ lliga.nom_lliga }}</h3>
-
+<h1>@{{lliga.url_imagen}}</h1>
     <div class="card">
-        <img :src="'/assets/fotos_lliga/' + lliga.url_imagen" class="card-img-top" alt="Lliga">
+        <img :src="'assets/fotos_lliga/' + lliga.url_imagen" class="card-img-top img-fixed" alt="Lliga">
+
         <div class="card-body">
             <h5 class="card-title">@{{ lliga.nom_lliga }}</h5>
             <p class="card-text"><strong>Ubicación:</strong> @{{ lliga.lloc_lliga }}</p>
@@ -62,18 +63,16 @@ const app = Vue.createApp({
     },
     methods: {
         fetchLliga() {
-            // Obtiene la URL generada por Laravel en el atributo "data-url"
             let url = document.getElementById('app').getAttribute('data-url');
 
-            // Reemplaza el marcador __ID__ con el ID real de la liga desde la URL
             const lligaId = window.location.pathname.split('/').pop();
             url = url.replace('__ID__', lligaId);
 
-            console.log("URL final de la API:", url); // 👀 Verifica la URL en la consola
+            console.log("URL final de la API:", url);
 
             axios.get(url)
                 .then(response => {
-                    console.log("Respuesta de la API:", response.data); // 👀 Verifica la respuesta
+                    console.log("Respuesta de la API:", response.data);
                     this.lliga = response.data;
                 })
                 .catch(error => {
