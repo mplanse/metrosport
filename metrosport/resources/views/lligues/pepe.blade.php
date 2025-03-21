@@ -29,6 +29,7 @@
 <body>
 
     <div class="container my-4">
+        <form action="{{route('dia_hora.store')}}" method="POST">
         <div class="table-responsive">
             <table class="table table-bordered">
                 <thead class="table-light">
@@ -1128,7 +1129,9 @@
 
                 </tbody>
             </table>
+            <button type="submit" class="btn btn-primary">Guardar</button>
         </div>
+    </form>
     </div>
 
 </body>

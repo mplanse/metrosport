@@ -12,6 +12,7 @@ class DiaHora extends Model
     protected $table = 'dia_hora';
     protected $primaryKey = 'id';
     public $timestamps = false;
+    protected $fillable = ['id', 'dia', 'hora'];
 
     public function equips()
     {
