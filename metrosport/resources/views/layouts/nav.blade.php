@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
     <nav class="navbar navbar-expand-lg p-2">
@@ -26,7 +27,7 @@
                 </ul>
                 <div class="ms-auto nav-icons d-flex align-items-center">
                     <img src="{{ asset('assets/iconos_nav/notificaciones.png') }}" alt="Notificaciones">
-                    <img src="{{ Auth::user()->foto_perfil ? asset('storage/' . Auth::user()->foto_perfil) : asset('assets/iconos_nav/default.png') }}" 
+                    <img src="{{ Auth::user()->foto_perfil ? asset('storage/' . Auth::user()->foto_perfil) : asset('assets/iconos_nav/default.png') }}"
                         alt="Perfil">
                     <img src="{{ asset('assets/iconos_nav/cerrar_sesion.png') }}" alt="Logout">
                 </div>

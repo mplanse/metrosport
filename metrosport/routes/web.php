@@ -15,9 +15,8 @@ Route::middleware('auth')->group(function () {
     })->name('home');
 
     Route::get('/lligues/{id}', function ($id) {
-        return view('lligues.lliga', ['id' => $id]);
+        return view('lligues.lliga2', ['id' => $id]);
     })->name('lliga.show');
-    
 
     Route::get('/lligues', [LligaController::class, 'index'])->name('lligues.index');
 

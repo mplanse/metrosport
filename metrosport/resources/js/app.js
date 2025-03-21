@@ -1,8 +1,8 @@
 import './bootstrap';
 
 import { createApp } from 'vue';
-import LeagueList from './components/LeagueList.vue';
+import Lliga from './components/Lliga.vue';    // Importem el component
 
 const app = createApp({});
-app.component('league-list', LeagueList);
+app.component('lliga', Lliga);
 app.mount('#app');
