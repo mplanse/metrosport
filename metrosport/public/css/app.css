@@ -34,6 +34,10 @@ body {
     cursor: pointer;
 }
 
+.a-lligues {
+    text-decoration: none;
+}
+
 @media (max-width: 991px) {
     .navbar-collapse {
         display: flex;
@@ -75,7 +79,7 @@ body {
     object-fit: cover;
 }
 
-/* per a que si els noms de les lligues son molt 
+/* per a que si els noms de les lligues son molt
 llargs surtin punts suspensius en comptes del
 nom sencer */
 .text-truncate {
