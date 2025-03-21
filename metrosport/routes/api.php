@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LligaController;
+use App\Http\Controllers\DiaHoraController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,6 @@ Route::get('/lligues/{id}', [LligaController::class, 'getLligaInfo'])->name('lli
 Route::get('/lligues', [LligaController::class, 'getLligues'])->name('lligues.api');
 Route::get('/lliga/{id}', [LligaController::class, 'getLligaInfo']);
 
-
+Route::post('/dia-hora/store', [DiaHoraController::class, 'store'])->name('dia_hora.store');
 
 
