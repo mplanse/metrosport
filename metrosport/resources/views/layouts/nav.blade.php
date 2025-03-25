@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metro Sport</title>
+    <title>MetroSport</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -22,7 +22,7 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item ms-4 me-4"><a class="nav-link active" href="{{ route('lligues.index') }}">Lligues</a></li>
                     <li class="nav-item ms-4 me-4"><a class="nav-link" href="#">Crea una lliga</a></li>
-                    <li class="nav-item ms-4 me-4"><a class="nav-link" href="#">Tens dubtes?</a></li>
+                    <li class="nav-item ms-4 me-4"><a class="nav-link" href="{{ route('preguntes') }}">Tens dubtes?</a></li>
                     <li class="nav-item ms-4 me-4"><a class="nav-link" href="#">Classificació</a></li>
                 </ul>
                 <div class="ms-auto nav-icons d-flex align-items-center">

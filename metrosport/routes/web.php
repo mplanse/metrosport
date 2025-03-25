@@ -20,6 +20,10 @@ Route::middleware('auth')->group(function () {
         return view('lligues.lliga', ['id' => $id]);
     })->name('lliga.show');
 
+    Route::get('/preguntes', function () {
+        return view('preguntes.preguntes');
+    })->name('preguntes');
+
     Route::get('/lligues', [LligaController::class, 'index'])->name('lligues.index');
     Route::get('/editar-perfil',[EditarPerfilController::class, 'showEditarPerfil'])->name('editar-perfil');
 
@@ -33,7 +37,7 @@ Route::get('/login', [UsuarioController::class, 'showLogin'])->name('login');
 Route::post('/login', [UsuarioController::class, 'login']);
 
 Route::get('/register', [UsuarioController::class, 'showRegister'])->name('register');
-Route::post('/register1', [UsuarioController::class, 'register1'])->name('register1');  
+Route::post('/register1', [UsuarioController::class, 'register1'])->name('register1');
 
 
 Route::get('/pepe', function () {
