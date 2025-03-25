@@ -11,20 +11,25 @@ class DiaHoraController extends Controller
     public function store(Request $request)
     {
         $usuari_id = Auth::id();
+        
 
-        // Borrar disponibilidad anterior
-        DB::table('equip_has_dia_hora')->where('equip_usuari_id_usuari', $usuari_id)->delete();
+        try {
+            // Borrar disponibilidad anterior
+            DB::table('equip_has_dia_hora')->where('equip_usuari_id_usuari', $usuari_id)->delete();
 
-        // Insertar nuevos valores seleccionados
-        foreach ($request->all() as $key => $value) {
-            if (str_starts_with($key, 'checkbox_')) {
-                DB::table('equip_has_dia_hora')->insert([
-                    'equip_usuari_id_usuari' => $usuari_id,
-                    'dia_hora_id' => $value,
-                ]);
+            // Insertar nuevos valores seleccionados
+            foreach ($request->all() as $key => $value) {
+                if (str_starts_with($key, 'checkbox_')) {
+                    DB::table('equip_has_dia_hora')->insert([
+                        'equip_usuari_id_usuari' => $usuari_id,
+                        'dia_hora_id' => $value,
+                    ]);
+                }
             }
-        }
 
-        return redirect()->back();
+            return redirect()->back()->with('success', 'Disponibilidad guardada correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Hubo un error al guardar tu disponibilidad. Intenta de nuevo.');
+        }
     }
 }
