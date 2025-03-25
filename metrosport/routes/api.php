@@ -26,6 +26,5 @@ Route::get('/lligues/{id}', [LligaController::class, 'getLligaInfo'])->name('lli
 Route::get('/lligues', [LligaController::class, 'getLligues'])->name('lligues.api');
 Route::get('/lliga/{id}', [LligaController::class, 'getLligaInfo']);
 
-Route::post('/dia-hora/store', [DiaHoraController::class, 'store'])->name('dia_hora.store');
 
 

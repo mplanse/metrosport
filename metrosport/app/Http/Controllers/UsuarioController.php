@@ -43,7 +43,7 @@ class UsuarioController extends Controller
     }
 
     // Procesar el registro
-    public function register(Request $request)
+    public function register1(Request $request)
     {
         $request->validate([
             'nom_usuari' => 'required|string|unique:usuari,nom_usuari',

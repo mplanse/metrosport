@@ -1,25 +1,30 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\DiaHora;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DiaHoraController extends Controller
 {
     public function store(Request $request)
     {
-        $checkboxes = $request->input('checkboxes', []);
+        $usuari_id = Auth::id();
 
-        foreach ($checkboxes as $hour => $days) {
-            foreach ($days as $day => $value) {
-                DiaHora::create([
-                    'hour' => $hour,
-                    'day' => $day,
-                    'value' => $value,
+        // Borrar disponibilidad anterior
+        DB::table('equip_has_dia_hora')->where('equip_usuari_id_usuari', $usuari_id)->delete();
+
+        // Insertar nuevos valores seleccionados
+        foreach ($request->all() as $key => $value) {
+            if (str_starts_with($key, 'checkbox_')) {
+                DB::table('equip_has_dia_hora')->insert([
+                    'equip_usuari_id_usuari' => $usuari_id,
+                    'dia_hora_id' => $value,
                 ]);
             }
         }
 
-        return redirect()->back()->with('success', 'Datos guardados correctamente.');
+        return redirect()->back();
     }
 }
