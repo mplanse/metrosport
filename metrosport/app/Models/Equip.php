@@ -11,6 +11,14 @@ class Equip extends Model
     protected $table = 'equip';
     protected $primaryKey = 'usuari_id_usuari';
     public $timestamps = false;
+    protected $fillable = [
+        'nom_equip',
+        'usuari_id_usuari',
+        'url_imagen',
+        'lliga_id_lliga',
+        'puntuacio_lliga',
+        'puntuacio_equip',
+    ];
 
     public function usuari()
     {

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Usuari;
+use App\Models\Equip;
 
 class UsuarioController extends Controller
 {
@@ -56,6 +57,15 @@ class UsuarioController extends Controller
             'nom_usuari' => $request->nom_usuari,
             'mail' => $request->mail,
             'contrasenya' => Hash::make($request->contrasenya), // Encriptar la contraseña
+        ]);
+
+        Equip::create([
+            'nom_equip' => '0',
+            'usuari_id_usuari' => $usuario->id_usuari,
+            'url_imagen' => null,
+            'lliga_id_lliga' => 1, // O el ID de la liga por defecto que tú determines
+            'puntuacio_lliga' => 0,
+            'puntuacio_equip' => 0,
         ]);
 
         // Autenticar automáticamente al usuario después del registro
