@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Lliga;
 use Illuminate\Http\Request;
+use App\Models\Equip;
+use App\Models\UbicacioCamp;
 
 class LligaController extends Controller
 {
@@ -17,14 +19,19 @@ class LligaController extends Controller
         return response()->json(Lliga::all());
     }
 
-public function getLligaInfo($id)
-{
-    $lliga = Lliga::with(['equips', 'partits.estat', 'partits.ubicacio'])->find($id);
+    public function getLligaInfo($id)
+    {
+        $lliga = Lliga::with([
+            'equips.ubicacioCamp',  // esto ahora funcionará
+            'partits.estat',
+            'partits.ubicacio'
+        ])->find($id);
 
-    if (!$lliga) {
-        return response()->json(['error' => 'Liga no encontrada'], 404);
+        if (!$lliga) {
+            return response()->json(['error' => 'Lliga no trobada'], 404);
+        }
+
+        return response()->json($lliga);
     }
 
-    return response()->json($lliga);
-}
 }

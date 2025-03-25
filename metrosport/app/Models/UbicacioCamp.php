@@ -18,9 +18,9 @@ class UbicacioCamp extends Model
 
     // Columnas permitidas para asignación masiva
     protected $fillable = [
-        'nom_ubicacio',
-        'equip_usuari_id_usuari',
-        'equip_lliga_id_lliga'
+        'id_ubicacio_camp',
+        'nom_ubucacio',
+        'equip_usuari_id_usuari'
     ];
 
     // 📌 Relación con `Partit` (Una ubicación puede tener muchos partidos)

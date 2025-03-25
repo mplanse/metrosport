@@ -34,4 +34,12 @@ class Equip extends Model
     {
         return $this->belongsToMany(DiaHora::class, 'equip_has_dia_hora', 'equip_usuari_id_usuari', 'dia_hora_id');
     }
+    // App\Models\Equip.php
+    public function ubicacioCamp()
+{
+    return $this->hasOne(UbicacioCamp::class, 'equip_usuari_id_usuari', 'usuari_id_usuari');
+}
+
+
+
 }
