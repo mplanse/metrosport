@@ -27,8 +27,10 @@
                 </ul>
                 <div class="ms-auto nav-icons d-flex align-items-center">
                     <img src="{{ asset('assets/iconos_nav/notificaciones.png') }}" alt="Notificaciones">
-                    <img src="{{ Auth::user()->foto_perfil ? asset('storage/' . Auth::user()->foto_perfil) : asset('assets/iconos_nav/default.png') }}"
+                    <a href="{{ route('editar-perfil') }}">
+                        <img src="{{ Auth::user()->foto_perfil ? asset('storage/' . Auth::user()->foto_perfil) : asset('assets/iconos_nav/default.png') }}"
                         alt="Perfil">
+                    </a>
                     <img src="{{ asset('assets/iconos_nav/cerrar_sesion.png') }}" alt="Logout">
                 </div>
             </div>
