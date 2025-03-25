@@ -36,18 +36,19 @@
             </div>
         </div>
 
-        <h4 class="mt-4">Equips inscrits</h4>
-        <div class="row">
-            <div class="col-md-4 mb-4" v-for="equip in lliga.equips" :key="equip.nom_equip">
+        <h4 class=" equips-text">Equips inscrits</h4>
+        <div class="row info-lliga-row">
+            <div class="col-12 mb-4" v-for="equip in lliga.equips" :key="equip.nom_equip">
                 <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ equip.nom_equip }}</h5>
-                        <p class="card-text"><strong>Puntuación en liga:</strong> {{ equip.puntuacio_lliga }}</p>
-                        <p class="card-text"><strong>Puntuación del equipo:</strong> {{ equip.puntuacio_equip }}</p>
+                    <div class="card-body full-width">
+                        <p class="card-title"><strong>{{ equip.nom_equip }}</strong></p>
+                        <p class="card-text">{{ equip.ubicacio_camp.nom_ubicacio }} </p>
+                        <p class="card-text"> Puntuació de l'equip:{{ equip.puntuacio_equip }}</p>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 
 </template>
@@ -79,6 +80,23 @@
     }
 </script>
 <style scoped>
+
+    .equips-text {
+        margin-bottom: 30px;
+    }
+
+    .full-width {
+        text-align: center;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 0;
+    }
+
+    .card-text, .card-title{
+        margin: 0;
+    }
 
     .info {
         height: 20rem;
@@ -121,9 +139,42 @@
         font-size: 2rem;
     }
 
+    .info-lliga-row{
+        margin: 0;
+    }
+
+    @media (max-width: 999px) {
+        .equips-text{
+            margin-bottom: 10px;
+        }
+
+       .full-width {
+            all: unset !important;
+        }
+
+        .info-lliga-row .col-12 {
+            width: calc(50% - 20px);
+        }
+
+        .info-lliga-row{
+            padding-left: 30px;
+            padding-top: 15px;
+        }
+    }
+
+
     @media (max-width: 768px) {
+        .full-width {
+            all: unset !important;
+        }
+
         .row{
             padding: 0;
+        }
+
+        .info-lliga-row{
+            padding-left: 30px;
+            padding-top: 15px;
         }
 
         .info {
@@ -148,22 +199,40 @@
         .title {
             font-size: 1.4rem;
         }
+
+        .equips-text{
+            margin-bottom: 10px;
+        }
+    }
+
+    @media (max-width: 550px) {
+        .info-lliga-row .col-12 {
+            width: 100%;
+        }
     }
 
     @media (max-width: 480px) {
+        .full-width {
+            all: unset !important;
+        }
         .row{
             padding: 0;
         }
 
+        .info-lliga-row{
+            padding-left: 30px;
+            padding-top: 15px;
+        }
+
         .info {
             margin-top: 1rem;
-            height: 13rem;
+            height: 10rem;
             min-width: 20rem;
             max-width: 20rem;
         }
 
         img {
-            height: 13rem;
+            height: 10rem;
             min-width: 20rem;
             max-width: 20rem;
             object-fit: cover;
@@ -176,6 +245,14 @@
 
         .title {
             font-size: 1.2rem;
+        }
+
+        .equips-text{
+            margin-bottom: 10px;
+        }
+
+        .info-lliga-row .col-12 {
+            width: 100%;
         }
     }
 
