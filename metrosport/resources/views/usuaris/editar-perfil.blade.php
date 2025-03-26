@@ -14,7 +14,18 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>
 @endif
-
+@if ($equip)
+<div class="d-flex align-items-center mb-4">
+    <img src="{{ asset('storage/' . $equip->url_imagen) }}" alt="Escut de l'equip" class="rounded-circle me-3" width="80" height="80">
+    <div>
+        <strong class="d-block">{{ $equip->nom_equip }}</strong>
+        <span>{{ auth()->user()->mail }}</span>
+    </div>
+    <div class="ms-auto">
+        <a href="#" class="text-decoration-underline">Editar</a> {{-- o el route a la edición si lo tienes --}}
+    </div>
+</div>
+@endif
     <form action="{{route('dia_hora.store')}}" method="POST">
         @csrf
     <div class="table-responsive">

@@ -31,7 +31,11 @@
                         <img src="{{ Auth::user()->foto_perfil ? asset('storage/' . Auth::user()->foto_perfil) : asset('assets/iconos_nav/default.png') }}"
                         alt="Perfil">
                     </a>
-                    <img src="{{ asset('assets/iconos_nav/cerrar_sesion.png') }}" alt="Logout">
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit"><img src="{{ asset('assets/iconos_nav/cerrar_sesion.png') }}" alt="Logout"></button>
+                    </form>
+                    <a href="{{route('logout')}}"></a>
                 </div>
             </div>
         </div>
