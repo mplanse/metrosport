@@ -24,7 +24,7 @@
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
                 <div class="accordion-body">
-                    Pots registrar-te fàcilment a través del formulari de registre de la plataforma. Durant el procés, podràs optar per inscriure't com a persona individual o associar-te al teu equip. Un cop completat el registre, rebràs un correu de confirmació amb les teves credencials.
+                    Pots registrar-te fàcilment a través del formulari de registre de la plataforma. Durant el procés, t'inscriuràs com a equip.
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
                 <div class="accordion-body">
-                    Un cop iniciada la sessió com a organitzador, trobaràs un menú per crear nous esdeveniments. A cada esdeveniment, podràs assignar-lo a una lliga específica existent o crear-ne una de nova. El formulari de creació inclou camps per a nom, descripció, data, ubicació, preu, aforament, entre d'altres.
+                    Un cop iniciada la sessió, trobaràs al menú l'opció de crear una lliga. El formulari de creació inclou camps per a nom, descripció, data, ubicació, preu, aforament, entre d'altres.
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@
             </h2>
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
                 <div class="accordion-body">
-                    La classificació de cada lliga es genera automàticament a partir dels resultats dels esdeveniments. Podràs consultar-la en una secció dedicada, on es mostra el rànquing amb punts, guanys, empatats i perduts de cada equip.
+                    La classificació de cada lliga es genera automàticament a partir dels resultats dels partits. Podràs consultar-la en una secció al menú, on es mostra el rànquing amb punts, guanys, empatats i perduts de cada equip.
                 </div>
             </div>
         </div>
@@ -80,7 +80,7 @@
             </h2>
             <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
                 <div class="accordion-body">
-                    La plataforma t'enviarà notificacions per correu electrònic o mitjançant notificacions push per informar-te de novetats com canvis d'horari, resultats, cancel·lacions o recordatoris de propers partits.
+                    La plataforma t'enviarà notificacions mitjançant un xat que hi ha situat al menú, per informar-te de novetats com canvis d'horari, resultats, cancel·lacions o recordatoris de propers partits.
                 </div>
             </div>
         </div>
@@ -94,7 +94,7 @@
             </h2>
             <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#faqAccordion">
                 <div class="accordion-body">
-                    Si detectes qualsevol error, pots contactar amb el servei d'atenció al client mitjançant el formulari de suport. El nostre equip tècnic estarà encantat d'ajudar-te i resoldre qualsevol incidència.
+                    Si detectes qualsevol error, pots contactar amb el servei d'atenció al client. El nostre equip tècnic estarà encantat d'ajudar-te i resoldre qualsevol incidència.
                 </div>
             </div>
         </div>
@@ -108,7 +108,7 @@
             </h2>
             <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#faqAccordion">
                 <div class="accordion-body">
-                    La seguretat és una prioritat. Utilitzem tecnologies avançades d'autenticació i encriptació (Laravel al backend) per protegir les teves dades. A més, el sistema de gestió de la base de dades assegura la integritat i confidencialitat de tota la informació registrada.
+                    La seguretat és una prioritat. Utilitzem tecnologies avançades d'autenticació i encriptació per protegir les teves dades. A més, el sistema de gestió de la base de dades assegura la integritat i confidencialitat de tota la informació registrada.
                 </div>
             </div>
         </div>
