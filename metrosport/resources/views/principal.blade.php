@@ -9,24 +9,48 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <div class="container text-center mt-5">
+<body class="d-flex justify-content-center align-items-center body-principal">
+
+    <div class="text-center body-content">
 
         <div class="mb-4">
-            <img src="{{ asset('assets/iconos_nav/logo_metrosport.png') }}" alt="Logo" class="img-fluid" style="max-width: 300px;">
+            <img src="{{ asset('assets/iconos_nav/logo_blanc.png') }}" alt="Logo" class="img-fluid" style="max-width: 300px;">
         </div>
 
         <div class="mb-5">
-            <p class="lead">On altres veuen carrers, nosaltres veiem escenaris de joc.</p>
-            <p class="lead">L’esport urbà ens uneix.</p>
+            <p class="lema">On altres veuen carrers, nosaltres veiem escenaris de joc.</p>
+            <p class="lema">L’esport urbà ens uneix.</p>
         </div>
 
-        <div class="mb-4">
-            <a href="{{ route('login') }}" class="btn btn-lg">Iniciar sesión</a>
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <a href="{{ route('login') }}" class="btn btn-lg">Iniciar sesión</a>
+            </div>
+            <div class="col-auto">
+                <a href="{{ route('register') }}" class="btn btn-lg">Registrarse</a>
+            </div>
         </div>
-        <div>
-            <a href="{{ route('register') }}" class="btn btn-lg">Registrarse</a>
-        </div>
+
+        <!-- Botón para cambiar el fondo -->
+        <button class="btn-change-background" onclick="changeBackground()">Cambiar Fondo</button>
+
     </div>
+
+    <script>
+        let currentBackgroundIndex = 0;
+        const backgrounds = [
+            '{{ asset('assets/fotos_fons/1.jpg') }}',
+            '{{ asset('assets/fotos_fons/2.jpg') }}',
+            '{{ asset('assets/fotos_fons/3.jpg') }}',
+            '{{ asset('assets/fotos_fons/4.jpg') }}',
+            '{{ asset('assets/fotos_fons/5.jpg') }}'
+        ];
+
+        function changeBackground() {
+            currentBackgroundIndex = (currentBackgroundIndex + 1) % backgrounds.length;
+            document.querySelector('.body-principal').style.backgroundImage = `url('${backgrounds[currentBackgroundIndex]}')`;
+        }
+    </script>
+
 </body>
 </html>
