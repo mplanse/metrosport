@@ -1136,4 +1136,84 @@
     </div>
 </form>
 </div>
+@if ($equip && $equip->nom_ubicacio)
+<div id="map" style="height: 400px;" class="my-4"></div>
+
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
+<script src="https://unpkg.com/@mapbox/mapbox-sdk/umd/mapbox-sdk.min.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet" />
+
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoibXBsYW5zZSIsImEiOiJjbThxMzZteHowaDhxMmlzY21xOXRiOWZhIn0.iCppyyNfsTUugnwH24A40Q';
+    const mapboxClient = mapboxSdk({ accessToken: mapboxgl.accessToken });
+
+    mapboxClient.geocoding
+        .forwardGeocode({
+            query: @json($equip->nom_ubicacio),
+            autocomplete: false,
+            limit: 1
+        })
+        .send()
+        .then((response) => {
+            if (
+                !response || !response.body ||
+                !response.body.features || !response.body.features.length
+            ) {
+                console.error('Ubicación no encontrada');
+                return;
+            }
+
+            const feature = response.body.features[0];
+
+            const map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v12',
+                center: feature.center,
+                zoom: 13
+            });
+
+            new mapboxgl.Marker().setLngLat(feature.center).addTo(map);
+        });
+</script>
+@else
+<div class="alert alert-warning mt-4">
+    <strong>¡Ubicación no definida!</strong> Configúrala ahora usando el buscador.
+</div>
+
+<form action="{{ route('equip.setUbicacio') }}" method="POST">
+    @csrf
+    <input type="hidden" name="nom_ubicacio" id="nom_ubicacio" value="">
+
+    <div id="map" style="height: 400px;" class="my-3"></div>
+    <button type="submit" class="btn btn-success mt-2">Guardar Ubicación</button>
+</form>
+
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css" rel="stylesheet" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.min.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.3/mapbox-gl-geocoder.css" rel="stylesheet" />
+
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoibXBsYW5zZSIsImEiOiJjbThxMzNlaWowZnpmMmpzYTdpd2huODN1In0.DF7JMs8WTd89SynWu1bkiw';
+
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [2.1734, 41.3851], // Barcelona por defecto
+        zoom: 12
+    });
+
+    const geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        placeholder: 'Busca una dirección...'
+    });
+
+    map.addControl(geocoder);
+
+    geocoder.on('result', function(e) {
+        document.getElementById('nom_ubicacio').value = e.result.place_name;
+    });
+</script>
+@endif
 @endsection

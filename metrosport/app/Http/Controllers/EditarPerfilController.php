@@ -20,9 +20,26 @@ class EditarPerfilController extends Controller
 
     // Obtener los datos del equipo (nombre, imagen)
     $equip = DB::table('equip')
-        ->where('usuari_id_usuari', $usuari_id)
+        ->leftJoin('ubicacio_camp', 'equip.usuari_id_usuari', '=', 'ubicacio_camp.equip_usuari_id_usuari')
+        ->select('equip.nom_equip', 'equip.url_imagen', 'ubicacio_camp.nom_ubicacio')
+        ->where('equip.usuari_id_usuari', $usuari_id)
         ->first();
+
+
 
     return view('usuaris.editar-perfil', compact('horasMarcadas', 'equip'));
 }
+
+public function guardarUbicacio(Request $request)
+{
+    $usuari_id = auth()->user()->id_usuari;
+
+    DB::table('ubicacio_camp')->updateOrInsert(
+        ['equip_usuari_id_usuari' => $usuari_id],
+        ['nom_ubicacio' => $request->nom_ubicacio]
+    );
+
+    return redirect()->back()->with('success', 'Ubicación guardada correctamente');
+}
+
 }

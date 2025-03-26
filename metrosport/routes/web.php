@@ -30,6 +30,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [UsuarioController::class, 'logout'])->name('logout');
     Route::post('/dia-hora/store', [DiaHoraController::class, 'store'])->name('dia_hora.store');
 
+    Route::post('/equip/ubicacio', [EditarPerfilController::class, 'guardarUbicacio'])->name('equip.setUbicacio');
+
+
 });
 
 // Rutas de autenticación
@@ -42,4 +45,16 @@ Route::post('/register1', [UsuarioController::class, 'register1'])->name('regist
 
 Route::get('/pepe', function () {
     return view('lligues.pepe');
+});
+
+Route::get('/api/equip-usuari', function () {
+    $usuari_id = 2;
+
+    $equip = DB::table('equip')
+        ->leftJoin('ubicacio_camp', 'equip.usuari_id_usuari', '=', 'ubicacio_camp.equip_usuari_id_usuari')
+        ->select('equip.nom_equip', 'equip.url_imagen', 'ubicacio_camp.nom_ubicacio')
+        ->where('equip.usuari_id_usuari', $usuari_id)
+        ->first();
+
+    return response()->json($equip);
 });
