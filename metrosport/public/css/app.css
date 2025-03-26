@@ -113,6 +113,7 @@ nom sencer */
 }
 
 .btn-lg {
+    color: #000;
     background-color: #2ECC71;
     padding: 15px 30px;
     font-size: 16px;
@@ -122,7 +123,9 @@ nom sencer */
 }
 
 .btn-lg:hover {
+    color: #000;
     background-color: #2ECC71;
+    border: 1px solid #ffffff;
     transform: scale(1.1);
 }
 
@@ -137,9 +140,7 @@ nom sencer */
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #2ECC71;
-    color: white;
-    border: none;
+    border: #000 solid 1px;
     padding: 10px 20px;
     font-size: 16px;
     border-radius: 5px;
@@ -147,30 +148,85 @@ nom sencer */
 }
 
 .btn-change-background:hover {
-    background-color: #27ae60;
+    background-color: #ffffff;
+    border: #000 solid 1px;
 }
 
 .body-principal {
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     min-height: 100vh;
-    transition: background-image 0.5s ease-in-out;
+    max-height: 100vh;
+    transition: background-image 1s ease-in-out;
     position: relative;
-    background-image: url('../assets/fotos_fons/1.jpg');
 }
 
-.body-principal::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
-    z-index: 1;
+@media (max-width: 999px) {
+    .btn-lg {
+        background-color: #2ECC71;
+        font-size: 16px;
+        border-radius: 10px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        border: 1px solid #ffffff;
+    }
+
+    .btn-lg:hover {
+        background-color: #2ECC71;
+        border: 1px solid #ffffff;
+        transform: scale(1.1);
+    }
+
+    .lema {
+        color: white;
+        -webkit-text-stroke: 1px black;
+        font-weight: bold;
+        font-size: 1.6rem;
+    }
 }
 
-.body-content {
-    position: relative;
-    z-index: 2;
+@media (max-width: 768px) {
+    .btn-lg {
+        background-color: #2ECC71;
+        font-size: 16px;
+        border-radius: 10px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        border: 1px solid #ffffff;
+    }
+
+    .btn-lg:hover {
+        background-color: #2ECC71;
+        border: 1px solid #ffffff;
+        transform: scale(1.1);
+    }
+
+    .lema {
+        color: white;
+        -webkit-text-stroke: 1px black;
+        font-weight: bold;
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-lg {
+        background-color: #2ECC71;
+        font-size: 14px;
+        border-radius: 10px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+        border: 1px solid #ffffff;
+    }
+
+    .btn-lg:hover {
+        background-color: #2ECC71;
+        border: 1px solid #ffffff;
+        transform: scale(1.1);
+    }
+
+    .lema {
+        color: white;
+        -webkit-text-stroke: 1px black;
+        font-weight: bold;
+        font-size: 1.3rem;
+    }
 }
