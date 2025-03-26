@@ -33,7 +33,7 @@
                     </a>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit"><img src="{{ asset('assets/iconos_nav/cerrar_sesion.png') }}" alt="Logout"></button>
+                        <button class="btn-logout" type="submit"><img src="{{ asset('assets/iconos_nav/cerrar_sesion.png') }}" alt="Logout"></button>
                     </form>
                     <a href="{{route('logout')}}"></a>
                 </div>

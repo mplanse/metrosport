@@ -18,7 +18,11 @@
 <div class="d-flex align-items-center mb-4">
     <img src="{{ asset('storage/' . $equip->url_imagen) }}" alt="Escut de l'equip" class="rounded-circle me-3" width="80" height="80">
     <div>
-        <strong class="d-block">{{ $equip->nom_equip }}</strong>
+        @if ($equip->nom_equip !== '0')
+            <strong class="d-block">{{ $equip->nom_equip }}</strong>
+        @else
+            <strong class="d-block">ENCARA NO TENS NOM D'EQUIP</strong>
+        @endif
         <span>{{ auth()->user()->mail }}</span>
     </div>
     <div class="ms-auto">

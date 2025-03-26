@@ -42,7 +42,8 @@
                 <div class="card">
                     <div class="card-body full-width">
                         <p class="card-title"><strong>{{ equip.nom_equip }}</strong></p>
-                        <p class="card-text">{{ equip.ubicacio_camp.nom_ubicacio }} </p>
+                        <p v-if="equip.ubicacio_camp" class="card-text">{{ equip.ubicacio_camp.nom_ubicacio }} </p>
+                        <p v-else class="card-text"> Ubicació no disponible </p>
                         <p class="card-text"> Puntuació de l'equip:{{ equip.puntuacio_equip }}</p>
                     </div>
                 </div>

@@ -96,3 +96,8 @@ nom sencer */
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.btn-logout{
+    border: none;
+    padding: 0;
+}
