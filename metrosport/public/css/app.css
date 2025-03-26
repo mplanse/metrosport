@@ -101,3 +101,18 @@ nom sencer */
     border: none;
     padding: 0;
 }
+
+.nav-link {
+    color: #000 !important;
+    font-weight: bold !important;
+}
+
+.nav-link.active {
+    color: #000 !important;
+    font-weight: bold;
+}
+
+.btn-lg{
+    background-color: #2ECC71;
+}
+

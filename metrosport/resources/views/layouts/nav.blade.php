@@ -20,10 +20,19 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item ms-4 me-4"><a class="nav-link active" href="{{ route('lligues.index') }}">Lligues</a></li>
-                    <li class="nav-item ms-4 me-4"><a class="nav-link" href="#">Crea una lliga</a></li>
-                    <li class="nav-item ms-4 me-4"><a class="nav-link" href="{{ route('preguntes') }}">Tens dubtes?</a></li>
-                    <li class="nav-item ms-4 me-4"><a class="nav-link" href="#">Classificació</a></li>
+                    <li class="nav-item ms-4 me-4">
+                        <a class="nav-link {{ request()->routeIs('lligues.index') ? 'active' : '' }}" href="{{ route('lligues.index') }}">Lligues</a>
+                    </li>
+                    <li class="nav-item ms-4 me-4">
+                        <a class="nav-link {{ request()->routeIs('crear-lliga') ? 'active' : '' }}" href="#">Crea una lliga</a>
+                    </li>
+                    <li class="nav-item ms-4 me-4">
+                        <a class="nav-link {{ request()->routeIs('preguntes') ? 'active' : '' }}" href="{{ route('preguntes') }}">Tens dubtes?</a>
+                    </li>
+                    <li class="nav-item ms-4 me-4">
+                        <a class="nav-link {{ request()->routeIs('classificacio') ? 'active' : '' }}" href="#">Classificació</a>
+                    </li>
+
                 </ul>
                 <div class="ms-auto nav-icons d-flex align-items-center">
                     <img src="{{ asset('assets/iconos_nav/notificaciones.png') }}" alt="Notificaciones">

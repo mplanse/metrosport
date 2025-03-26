@@ -7,7 +7,7 @@ use App\Http\Controllers\EditarPerfilController;
 use App\Http\Controllers\DiaHoraController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('principal');
 });
 
 // Rutas protegidas con middleware auth
