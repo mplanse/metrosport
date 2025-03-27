@@ -5,6 +5,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\LligaController;
 use App\Http\Controllers\EditarPerfilController;
 use App\Http\Controllers\DiaHoraController;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
     return view('principal');
@@ -31,7 +32,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/dia-hora/store', [DiaHoraController::class, 'store'])->name('dia_hora.store');
 
     Route::post('/equip/ubicacio', [EditarPerfilController::class, 'guardarUbicacio'])->name('equip.setUbicacio');
+    Route::post('/perfil/update', [EditarPerfilController::class, 'updatePerfil'])->name('perfil.update');
 
+    // Añade esta ruta para manejar solicitudes GET a /perfil/update
+    Route::get('/perfil/update', function() {
+        return redirect()->route('editar-perfil')->with('error', 'Esta página solo se puede acceder mediante un formulario.');
+    });
 
 });
 

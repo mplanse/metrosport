@@ -37,14 +37,20 @@
                 <div class="ms-auto nav-icons d-flex align-items-center">
                     <img src="{{ asset('assets/iconos_nav/notificaciones.png') }}" alt="Notificaciones">
                     <a href="{{ route('editar-perfil') }}">
-                        <img src="{{ Auth::user()->foto_perfil ? asset('storage/' . Auth::user()->foto_perfil) : asset('assets/iconos_nav/default.png') }}"
-                        alt="Perfil">
+                        @php
+                            $equipFoto = DB::table('equip')->where('usuari_id_usuari', Auth::user()->id_usuari)->value('url_imagen');
+                        @endphp
+
+                        @if($equipFoto && $equipFoto != '0')
+                            <img src="{{ asset($equipFoto) }}" alt="Foto equipo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                        @else
+                            <img src="{{ asset('assets/iconos_nav/default.png') }}" alt="Perfil" class="rounded-circle" style="width: 40px; height: 40px;">
+                        @endif
                     </a>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button class="btn-logout" type="submit"><img src="{{ asset('assets/iconos_nav/cerrar_sesion.png') }}" alt="Logout"></button>
                     </form>
-                    <a href="{{route('logout')}}"></a>
                 </div>
             </div>
         </div>
