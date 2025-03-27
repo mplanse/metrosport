@@ -206,6 +206,9 @@ nom sencer */
         font-weight: bold;
         font-size: 1.6rem;
     }
+    #view-map{
+        height: 400px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -229,11 +232,14 @@ nom sencer */
         font-weight: bold;
         font-size: 1.3rem;
     }
+    #view-map{
+        height: 300px;
+    }
 }
 
 /* LOGIN */
 
-.btn-entrar{
+.btn-entrar, .btn-guardar{
     background-color: #E67E22;
     border: 1px solid black;
     padding: 10px 20px;
@@ -242,8 +248,30 @@ nom sencer */
     cursor: pointer;
 }
 
-.btn-entrar:hover{
+.btn-entrar:hover {
     background-color: #E67E22;
     border: 1px solid black;
     transform: scale(1.1);
+}
+
+.btn-guardar:hover {
+    background-color: #e87613;
+    border: 1px solid black;
+}
+
+#view-map{
+    height: 1060px;
+}
+
+@media (max-width: 768px) {
+
+    #view-map{
+        height: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    #view-map{
+        height: 300px;
+    }
 }

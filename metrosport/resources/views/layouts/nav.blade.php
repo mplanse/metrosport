@@ -42,9 +42,9 @@
                         @endphp
 
                         @if($equipFoto && $equipFoto != '0')
-                            <img src="{{ asset($equipFoto) }}" alt="Foto equipo" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                            <img src="{{ asset($equipFoto) }}" alt="Foto equipo" class="rounded-circle" style="width: 27px; height: 27x; object-fit: cover;">
                         @else
-                            <img src="{{ asset('assets/iconos_nav/default.png') }}" alt="Perfil" class="rounded-circle" style="width: 40px; height: 40px;">
+                            <img src="{{ asset('assets/iconos_nav/default.png') }}" alt="Perfil" class="rounded-circle" style="width: 27px; height: 27px;">
                         @endif
                     </a>
                     <form action="{{ route('logout') }}" method="POST">
