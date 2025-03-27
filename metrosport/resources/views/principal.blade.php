@@ -29,9 +29,6 @@
             </div>
         </div>
     </div>
-
-
-
         <script>
             let currentBackgroundIndex = 0;
             const backgrounds = [

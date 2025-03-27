@@ -40,5 +40,7 @@
             <a href="{{ route('login') }}">¿Ya tienes cuenta? Inicia sesión</a>
         </div>
     </div>
+
+    <script src="{{ asset('js/script.js') }}"></script>
 </body>
 </html>

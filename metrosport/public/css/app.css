@@ -230,3 +230,20 @@ nom sencer */
         font-size: 1.3rem;
     }
 }
+
+/* LOGIN */
+
+.btn-entrar{
+    background-color: #E67E22;
+    border: 1px solid black;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-entrar:hover{
+    background-color: #E67E22;
+    border: 1px solid black;
+    transform: scale(1.1);
+}
