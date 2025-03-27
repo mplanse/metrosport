@@ -37,7 +37,7 @@
             </div>
         </form>
         <div class="mt-3 text-center">
-            <p class="mb-0">¿No tens conta? <a href="{{ route('register') }}">Registra't</a></p>
+            <p class="mb-0">No tens conta? <a href="{{ route('register') }}">Registra't</a></p>
         </div>
     </div>
 
