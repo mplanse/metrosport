@@ -4,7 +4,7 @@
         <div class="card">
             <div class="row p-5">
                 <div class="col-md-6 div-imatge">
-                    <img :src="'../assets/fotos_lliga/' + lliga.url_imagen" class="img-fluid rounded-start w-100" alt="Lliga">
+                    <img :src="`../storage/${lliga.url_imagen}`" class="img-fluid rounded-start w-100" alt="Lliga">
                 </div>
                 <div class="col-md-6 div-info">
                     <div class="card-body p-0">

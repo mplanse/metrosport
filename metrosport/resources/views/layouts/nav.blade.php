@@ -24,7 +24,7 @@
                         <a class="nav-link {{ request()->routeIs('lligues.index') ? 'active' : '' }}" href="{{ route('lligues.index') }}">Lligues</a>
                     </li>
                     <li class="nav-item ms-4 me-4">
-                        <a class="nav-link {{ request()->routeIs('crear-lliga') ? 'active' : '' }}" href="#">Crea una lliga</a>
+                        <a class="nav-link {{ request()->routeIs('crear-lliga') ? 'active' : '' }}" href="{{ route('crear-lliga') }}">Crea una lliga</a>
                     </li>
                     <li class="nav-item ms-4 me-4">
                         <a class="nav-link {{ request()->routeIs('preguntes') ? 'active' : '' }}" href="{{ route('preguntes') }}">Tens dubtes?</a>
@@ -32,10 +32,11 @@
                     <li class="nav-item ms-4 me-4">
                         <a class="nav-link {{ request()->routeIs('classificacio') ? 'active' : '' }}" href="#">Classificació</a>
                     </li>
-
                 </ul>
                 <div class="ms-auto nav-icons d-flex align-items-center">
-                    <img src="{{ asset('assets/iconos_nav/notificaciones.png') }}" alt="Notificaciones">
+                    <a href="{{ route('notificacions.index') }}">
+                        <img src="{{ asset('assets/iconos_nav/notificaciones.png') }}" alt="Notificaciones">
+                    </a>
                     <a href="{{ route('editar-perfil') }}">
                         @php
                             $equipFoto = DB::table('equip')->where('usuari_id_usuari', Auth::user()->id_usuari)->value('url_imagen');
