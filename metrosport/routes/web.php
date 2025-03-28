@@ -5,6 +5,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\LligaController;
 use App\Http\Controllers\EditarPerfilController;
 use App\Http\Controllers\DiaHoraController;
+use App\Http\Controllers\NotificacionsController;
 use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
@@ -17,6 +18,15 @@ Route::middleware('auth')->group(function () {
         return view('layouts.app');
     })->name('home');
 
+    // Coloca la ruta estática para crear liga ANTES de la ruta dinámica
+    Route::get('/lligues/crear', function () {
+        return view('lligues.crear-lliga');
+    })->name('crear-lliga');
+
+    // Ruta para almacenar la nueva liga
+    Route::post('/lligues/crear', [LligaController::class, 'store'])->name('lligues.store');
+
+    // Ruta dinámica para mostrar una liga individual
     Route::get('/lligues/{id}', function ($id) {
         return view('lligues.lliga', ['id' => $id]);
     })->name('lliga.show');
@@ -39,6 +49,8 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('editar-perfil')->with('error', 'Esta página solo se puede acceder mediante un formulario.');
     });
 
+    // Ruta para ver las notificaciones
+    Route::get('/notificacions', [NotificacionsController::class, 'index'])->name('notificacions.index');
 });
 
 // Rutas de autenticación
@@ -47,7 +59,6 @@ Route::post('/login', [UsuarioController::class, 'login']);
 
 Route::get('/register', [UsuarioController::class, 'showRegister'])->name('register');
 Route::post('/register1', [UsuarioController::class, 'register1'])->name('register1');
-
 
 Route::get('/pepe', function () {
     return view('lligues.pepe');
