@@ -260,18 +260,64 @@ nom sencer */
 }
 
 #view-map{
-    height: 1060px;
+    height: 400px;
+}
+
+#edit-map{
+    height: 400px;
+}
+
+.foto_nav{
+    aspect-ratio: 1 / 1;
+}
+
+.foto_equip{
+    height: 150px;
+    width: 150px;
+    object-fit: cover;
+    display: block;
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+}
+
+#editForm{
+    margin-bottom: 50px;
 }
 
 @media (max-width: 768px) {
 
-    #view-map{
+    .foto_equip{
+        height: 100px;
+        width: 100px;
+    }
+
+    #view-map, #edit-map{
         height: 400px;
     }
 }
 
 @media (max-width: 480px) {
-    #view-map{
+    .foto_equip{
+        height: 70px;
+        width: 70px;
+    }
+
+    .mail-text {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    nom_equip{
+        font-size: 1rem;
+    }
+
+    .div_info{
+        margin-top: 25px;
+    }
+
+    #view-map, #edit-map{
         height: 300px;
     }
 }
