@@ -12,7 +12,7 @@
 <body>
 
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Preguntes Freqüents</h2>
+    <h2 class="mb-4">Preguntes Freqüents</h2>
     <div class="accordion" id="faqAccordion">
 
         <!-- Pregunta 1 -->

@@ -239,7 +239,7 @@ nom sencer */
 
 /* LOGIN */
 
-.btn-entrar, .btn-guardar{
+.btn-entrar, .btn-guardar, .btn-crear{
     background-color: #E67E22;
     border: 1px solid black;
     padding: 10px 20px;
@@ -248,7 +248,7 @@ nom sencer */
     cursor: pointer;
 }
 
-.btn-entrar:hover {
+.btn-entrar:hover, .btn-crear:hover {
     background-color: #E67E22;
     border: 1px solid black;
     transform: scale(1.1);
@@ -257,6 +257,10 @@ nom sencer */
 .btn-guardar:hover {
     background-color: #e87613;
     border: 1px solid black;
+}
+
+.btn-crear{
+    margin-bottom: 40px;
 }
 
 #view-map{
@@ -321,3 +325,5 @@ nom sencer */
         height: 300px;
     }
 }
+
+
