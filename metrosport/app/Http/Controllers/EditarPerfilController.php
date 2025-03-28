@@ -39,7 +39,7 @@ public function guardarUbicacio(Request $request)
         ['nom_ubicacio' => $request->nom_ubicacio]
     );
 
-    return redirect()->back()->with('success', 'Ubicación guardada correctamente');
+    return redirect()->back()->with('success', 'Ubicació guardada correctament');
 }
 
 public function updatePerfil(Request $request)
@@ -84,7 +84,7 @@ public function updatePerfil(Request $request)
 
     DB::table('equip')->where('usuari_id_usuari', $usuari_id)->update($data);
 
-    return redirect()->route('editar-perfil')->with('success', 'Perfil actualizado correctamente');
+    return redirect()->route('editar-perfil')->with('success', 'Perfil actualitzat correctament.');
 }
 
 }

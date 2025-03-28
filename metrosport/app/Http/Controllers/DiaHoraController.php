@@ -11,7 +11,7 @@ class DiaHoraController extends Controller
     public function store(Request $request)
     {
         $usuari_id = Auth::id();
-        
+
 
         try {
             // Borrar disponibilidad anterior
@@ -27,9 +27,9 @@ class DiaHoraController extends Controller
                 }
             }
 
-            return redirect()->back()->with('success', 'Disponibilidad guardada correctamente.');
+            return redirect()->back()->with('success', 'Horari actualitzat correctament.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Hubo un error al guardar tu disponibilidad. Intenta de nuevo.');
+            return redirect()->back()->with('error', "Error al actualitzar l'horari. Intenta-ho de nou.");
         }
     }
 }
