@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 Route::get('/', function () {
     return view('principal');
 });
-
+Route::get('/lliga/{id}/detall', [LligaController::class, 'getLligaDetallada'])->name('lliga.detall');
 // Rutas protegidas con middleware auth
 Route::middleware('auth')->group(function () {
     Route::get('/home', function () {
