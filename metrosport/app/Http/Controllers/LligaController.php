@@ -9,6 +9,7 @@ use App\Models\UbicacioCamp;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Notificacions;
+use Illuminate\Support\Facades\Http;
 
 class LligaController extends Controller
 {
@@ -97,6 +98,7 @@ class LligaController extends Controller
      * Retorna una estructura JSON amb tota la informació requerida per una lliga.
      *
      * Endpoint: GET /api/lliga/{id}/detall
+
      */
     public function getLligaDetallada($id)
     {
@@ -160,4 +162,64 @@ class LligaController extends Controller
 
         return response()->json($result);
     }
+
+    public function callOpenRouter($id)
+{
+    $detailResponse = $this->getLligaDetallada($id)->getData(true);
+
+    $prompt = <<<EOT
+Eres un generador experto de calendarios deportivos. Recibirás un JSON con información de una liga: sus equipos, su disponibilidad horaria (por día y hora), y sus partidos jugados (incluyendo rival, goles, ubicación y estado).
+
+Tu tarea es generar el calendario de la próxima jornada de partidos. Cada equipo debe jugar exactamente un partido, sin repetir emparejamientos anteriores. Los enfrentamientos deben ser justos, cruzando equipos que no hayan jugado entre sí.
+
+Utiliza la disponibilidad horaria de ambos equipos para encontrar una franja coincidente. El campo de juego será el del equipo listado como local. Si no hay disponibilidad compatible, no se debe crear el partido.
+
+Devuelve exclusivamente un JSON con una lista llamada "jornada", donde cada objeto incluye:
+- equipo_local
+- equipo_visitante
+- dia
+- hora
+- ubicacio
+
+NO escribas explicaciones ni comentarios, solo el JSON.
+EOT;
+
+    $messages = [
+        ["role" => "system", "content" => "Eres un generador de jornadas deportivas que responde solo en formato JSON."],
+        ["role" => "user", "content" => $prompt . "\n\n" . json_encode($detailResponse, JSON_PRETTY_PRINT)]
+    ];
+
+    $apiKey = env('OPENROUTER_API_KEY');
+
+    $response = Http::withHeaders([
+        "Authorization" => "Bearer $apiKey",
+        "Content-Type" => "application/json"
+    ])->post("https://openrouter.ai/api/v1/chat/completions", [
+        "model" => "deepseek/deepseek-chat-v3-0324:free",
+        "messages" => $messages
+    ]);
+
+    $json = $response->json();
+
+    // 1. Extraer contenido del LLM
+    $content = $json['choices'][0]['message']['content'] ?? '{}';
+
+    // 2. Limpiar los backticks y etiquetas de Markdown si existen
+    $content = preg_replace('/^```json|```$/m', '', trim($content));
+
+    try {
+        $parsed = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'error' => 'Error al parsear JSON del modelo',
+            'raw' => $content
+        ], 500);
+    }
+
+    return response()->json($parsed);
+}
+
+
+
+
 }

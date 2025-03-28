@@ -25,7 +25,7 @@ Route::middleware('auth')->group(function () {
 
     // Ruta para almacenar la nueva liga
     Route::post('/lligues/crear', [LligaController::class, 'store'])->name('lligues.store');
-
+    Route::get('/lliga/{id}/openrouter', [LligaController::class, 'callOpenRouter'])->name('lliga.openrouter');
     // Ruta dinámica para mostrar una liga individual
     Route::get('/lligues/{id}', function ($id) {
         return view('lligues.lliga', ['id' => $id]);

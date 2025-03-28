@@ -23,6 +23,7 @@ Route::get('/lligues', [LligaController::class, 'getLligues'])->name('lligues.ap
 Route::get('/lligues/{id}', [LligaController::class, 'getLligaInfo'])->name('lligues.info');;
 
 // Endpoint públic o autenticat segons la teva configuració:
+Route::get('/lliga/{id}/openrouter', [LligaController::class, 'callOpenRouter'])->name('lliga.openrouter');
 
 
 
