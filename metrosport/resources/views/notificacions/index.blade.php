@@ -1,5 +1,9 @@
 @extends('layouts.nav')
 
+@section('title')
+ · Notificacions
+@endsection
+
 @section('content')
 <div class="container">
     <h1>Notificacions</h1>

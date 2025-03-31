@@ -51,6 +51,8 @@ Route::middleware('auth')->group(function () {
 
     // Ruta para ver las notificaciones
     Route::get('/notificacions', [NotificacionsController::class, 'index'])->name('notificacions.index');
+
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
 });
 
 // Rutas de autenticación

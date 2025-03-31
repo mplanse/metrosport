@@ -1,4 +1,7 @@
 @extends('layouts.nav')
+@section('title')
+ · Perfil
+@endsection
 @section('content')
     <div class="container my-4">
         <div class="col-md-12">
@@ -19,7 +22,11 @@
             @if ($equip)
             <div class="d-flex justify-content-between align-items-start mb-4 container position-relative">
                 <div class="d-flex align-items-center div_info">
-                    <img src="{{ asset($equip->url_imagen) }}" alt="Escut de l'equip" class="rounded-circle foto_equip">
+                    @if($equip->url_imagen && $equip->url_imagen != '0')
+                        <img src="{{ asset($equip->url_imagen) }}" alt="Escut de l'equip" class="rounded-circle foto_equip">
+                    @else
+                        <img src="{{ asset('assets/iconos_nav/default.jpg') }}" alt="Perfil" class="rounded-circle foto_equip">
+                    @endif
                     <div class="ps-4 flex-grow-1">
                         @if ($equip->nom_equip !== '0')
                             <h1 class="mb-1">{{ $equip->nom_equip }}</h1>

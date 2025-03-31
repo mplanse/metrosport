@@ -1,10 +1,10 @@
 @extends('layouts.nav')
 @section('title')
- · Lligues
+ · Chat
 @endsection
 
 @section('content')
 <div id="app" class="container mt-4">
-    <lligues></lligues>
+    <chat></chat>
 </div>
 @endsection
