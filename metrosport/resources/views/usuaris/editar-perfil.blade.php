@@ -61,9 +61,9 @@
 
                 {{-- SECCIÓN DE MAPAS --}}
                 <div class="col-md-12">
-                    {{-- Vista para visualizar ubicación (visible por defecto) --}}
-                    <div id="view-map-container" style="display: block;">
-                        @if ($equip && $equip->nom_ubicacio)
+                    @if ($equip && $equip->nom_ubicacio)
+                        {{-- Vista para visualizar ubicación (visible cuando hay ubicación) --}}
+                        <div id="view-map-container" style="display: block;">
                             <p class="text-muted">Ubicació actual: {{ $equip->nom_ubicacio }}</p>
                             <div id="view-map" class="my-4"></div>
 
@@ -102,38 +102,51 @@
                                         });
                                 });
                             </script>
-                        @else
+                        </div>
+                        <div id="edit-map-container" style="display: none;">
+                            <div class="alert alert-info">
+                                <strong>Mode edició:</strong> Configura la ubicació del teu equip utilitzant el cercador.
+                            </div>
+
+                            <form action="{{ route('equip.setUbicacio') }}" method="POST">
+                                <div class="d-flex justify-content-end mb-3">
+                                    <button type="submit" class="btn mt-2 btn-guardar">Guardar ubicació actalitzada</button>
+                                </div>
+                                @csrf
+                                <input type="hidden" name="nom_ubicacio" id="nom_ubicacio" value="{{ $equip->nom_ubicacio ?? '' }}">
+                                <div id="edit-map" class="my-3"></div>
+                            </form>
+                        </div>
+                    @else
+                        {{-- Si NO hay ubicación configurada: mostrar directamente el panel de edición --}}
+                        <div id="view-map-container" style="display: none;">
                             <div class="alert alert-info">
                                 No hi ha cap ubicació configurada per a aquest equip.
                             </div>
-                        @endif
-                    </div>
-
-                    {{-- Vista para editar ubicación (oculta por defecto) --}}
-                    <div id="edit-map-container" style="display: none;">
-                        <div class="alert alert-info">
-                            <strong>Mode edició:</strong> Configura la ubicació del teu equip utilitzant el cercador.
                         </div>
-
-                        <form action="{{ route('equip.setUbicacio') }}" method="POST">
-                            <div class="d-flex justify-content-end mb-3">
-                                <button type="submit" class="btn mt-2 btn-guardar">Guardar ubicació actalitzada</button>
+                        <div id="edit-map-container" style="display: block;">
+                            <div class="alert alert-info">
+                                <strong>Configura la ubicació:</strong> El teu equip encara no té una ubicació configurada. Si us plau, configura la ubicació utilitzant el cercador.
                             </div>
-                            @csrf
-                            <input type="hidden" name="nom_ubicacio" id="nom_ubicacio"
-                                value="{{ $equip->nom_ubicacio ?? '' }}">
 
-                            <div id="edit-map" class="my-3"></div>
-                        </form>
+                            <form action="{{ route('equip.setUbicacio') }}" method="POST">
+                                <div class="d-flex justify-content-end mb-3">
+                                    <button type="submit" class="btn mt-2 btn-guardar">Guardar ubicació</button>
+                                </div>
+                                @csrf
+                                <input type="hidden" name="nom_ubicacio" id="nom_ubicacio" value="">
+                                <div id="edit-map" class="my-3"></div>
+                            </form>
 
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function() {
-                                mapboxgl.accessToken =
-                                    'pk.eyJ1IjoibXBsYW5zZSIsImEiOiJjbThxMzNlaWowZnpmMmpzYTdpd2huODN1In0.DF7JMs8WTd89SynWu1bkiw';
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    // Inicializar inmediatamente el mapa de edición ya que no hay ubicación
+                                    if (window.initEditMap) {
+                                        window.initEditMap();
+                                    } else {
+                                        // Fallback por si la función no está disponible todavía
+                                        mapboxgl.accessToken = 'pk.eyJ1IjoibXBsYW5zZSIsImEiOiJjbThxMzNlaWowZnpmMmpzYTdpd2huODN1In0.DF7JMs8WTd89SynWu1bkiw';
 
-                                // Esta función se ejecutará cuando el elemento sea visible
-                                window.initEditMap = function() {
-                                    if (!window.editMapInitialized) {
                                         const editMap = new mapboxgl.Map({
                                             container: 'edit-map',
                                             style: 'mapbox://styles/mapbox/streets-v12',
@@ -155,10 +168,10 @@
 
                                         window.editMapInitialized = true;
                                     }
-                                };
-                            });
-                        </script>
-                    </div>
+                                });
+                            </script>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- Carga de bibliotecas de Mapbox --}}
