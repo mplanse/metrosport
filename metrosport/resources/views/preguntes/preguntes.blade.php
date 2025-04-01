@@ -1,5 +1,9 @@
 @extends('layouts.nav')
 
+@section('title')
+ · Preguntes freqüents
+@endsection
+
 @section('content')
 <!DOCTYPE html>
 <html lang="ca">
@@ -14,7 +18,6 @@
 <div class="container mt-5">
     <h2 class="mb-4">Preguntes Freqüents</h2>
     <div class="accordion" id="faqAccordion">
-
         <!-- Pregunta 1 -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">

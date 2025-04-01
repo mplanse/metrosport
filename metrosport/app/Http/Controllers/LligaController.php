@@ -26,7 +26,7 @@ class LligaController extends Controller
     public function getLligaInfo($id)
     {
         $lliga = Lliga::with([
-            'equips.ubicacioCamp',  // esto ahora funcionará
+            'equips.ubicacioCamp',
             'partits.estat',
             'partits.ubicacio'
         ])->find($id);
@@ -40,14 +40,12 @@ class LligaController extends Controller
 
     public function store(Request $request)
     {
-        // Validar les dades entrant del formulari (lloc_lliga eliminat)
         $validated = $request->validate([
             'nom_lliga' => 'required|string|max:45',
-            // 'lloc_lliga' => 'required|string|max:255',  // Eliminat
             'nro_equips_participants' => 'required|integer|min:2',
             'preu_entrada' => 'required|integer|min:0',
             'url_imagen' => 'required|image',
-            'data_inici' => 'required|date',
+            // 'data_inici' => 'required|date',
             'esport' => 'required|string|max:255',
             'persones_equip' => 'required|integer|min:1',
         ]);
@@ -65,9 +63,9 @@ class LligaController extends Controller
         $imagePath = $request->file('url_imagen')->store('lligues_imagenes', 'public');
 
         // Calcular data final: 2 setmanes per cada equip participant
-        $dataInici = Carbon::parse($validated['data_inici']);
-        $semanasAfegir = $validated['nro_equips_participants'] * 2;
-        $dataFi = $dataInici->copy()->addWeeks($semanasAfegir);
+        // $dataInici = Carbon::parse($validated['data_inici']);
+        // $semanasAfegir = $validated['nro_equips_participants'] * 2;
+        // $dataFi = $dataInici->copy()->addWeeks($semanasAfegir);
 
         // Crear la nova lliga amb participants_actualment a 0
         $lliga = Lliga::create([
@@ -76,8 +74,8 @@ class LligaController extends Controller
             'nro_equips_participants' => $validated['nro_equips_participants'],
             'preu_entrada' => $validated['preu_entrada'],
             'url_imagen' => $imagePath,
-            'data_inici' => $dataInici,
-            'data_fi' => $dataFi,
+            // 'data_inici' => $dataInici,
+            // 'data_fi' => $dataFi,
             'participants_actualment' => 0,
             'esport' => $validated['esport'],
             'persones_equip' => $validated['persones_equip'],

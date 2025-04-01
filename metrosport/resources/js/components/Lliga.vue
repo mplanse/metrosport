@@ -38,17 +38,26 @@
 
         <h4 class=" equips-text">Equips inscrits</h4>
         <div class="row info-lliga-row">
-            <div class="col-12 mb-4" v-for="equip in lliga.equips" :key="equip.nom_equip">
-                <div class="card">
-                    <div class="card-body full-width">
-                        <p v-if="equip.nom_equip !== '0'" class="card-title"><strong>{{ equip.nom_equip }}</strong></p>
-                        <p v-else class="card-title"><strong>Nom no disponible</strong></p>
-                        <p v-if="equip.ubicacio_camp" class="card-text">{{ equip.ubicacio_camp.nom_ubicacio }} </p>
-                        <p v-else class="card-text"> Ubicació no disponible </p>
-                        <p class="card-text"> Puntuació de l'equip:{{ equip.puntuacio_equip }}</p>
+            <div v-if="lliga.equips && lliga.equips.length > 0">
+                <div class="col-12 mb-4" v-for="equip in lliga.equips" :key="equip.nom_equip">
+                    <div class="card">
+                        <div class="card-body full-width">
+                            <p v-if="equip.nom_equip !== '0'" class="card-title"><strong>{{ equip.nom_equip }}</strong></p>
+                            <p v-else class="card-title"><strong>Nom no disponible</strong></p>
+                            <p v-if="equip.ubicacio_camp" class="card-text">{{ equip.ubicacio_camp.nom_ubicacio }} </p>
+                            <p v-else class="card-text"> Ubicació no disponible </p>
+                            <p class="card-text"> Puntuació de l'equip:{{ equip.puntuacio_equip }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
+            <div v-else>
+                <p>Encara no hi ha cap equip inscrit</p>
+            </div>
+        </div>
+
+        <div class="justify-content-center d-flex align-items-center">
+            <button class="btn btn-inscriuret">Inscriure'm</button>
         </div>
 
     </div>
@@ -143,6 +152,23 @@
 
     .info-lliga-row{
         margin: 0;
+    }
+
+    .btn-inscriuret {
+        background-color: #E67E22;
+        border: 1px solid black;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: 40px;
+        margin-top: 20px;
+    }
+
+    .btn-inscriuret:hover {
+        background-color: #E67E22;
+        border: 1px solid black;
+        transform: scale(1.1);
     }
 
     @media (max-width: 999px) {

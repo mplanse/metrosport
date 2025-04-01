@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MetroSport</title>
+    <title>MetroSport @yield('title')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -43,9 +43,9 @@
                         @endphp
 
                         @if($equipFoto && $equipFoto != '0')
-                            <img src="{{ asset($equipFoto) }}" alt="Foto equipo" class="rounded-circle foto_nav" style="width: 27px; height: 27x; object-fit: cover;">
+                            <img src="{{ asset($equipFoto) }}" alt="Foto equipo" class="rounded-circle foto_nav" style="width: 35px; height: 35px; object-fit: cover;">
                         @else
-                            <img src="{{ asset('assets/iconos_nav/default.png') }}" alt="Perfil" class="rounded-circle" style="width: 27px; height: 27px;">
+                            <img src="{{ asset('assets/iconos_nav/default.jpg') }}" alt="Perfil" class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;">
                         @endif
                     </a>
                     <form action="{{ route('logout') }}" method="POST">
@@ -60,5 +60,10 @@
     <div class="container mt-4">
         @yield('content')
     </div>
+
+    <div class="chat">
+        <a href="{{ route('chat.index') }}"><img src="{{ asset('assets/iconos_nav/chat.png') }}" alt="Chat"></a>
+    </div>
+
 </body>
 </html>
