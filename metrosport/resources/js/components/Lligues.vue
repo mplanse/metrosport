@@ -33,7 +33,7 @@ export default {
     },
     methods: {
         fetchLligues() {
-            axios.get('/lligues')
+            axios.get('/api/lligues')
                 .then(response => {
                     this.lligues = response.data;
                 })

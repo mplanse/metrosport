@@ -78,7 +78,7 @@
         },
         methods: {
             fetchLliga() {
-                axios.get('lligues/' + this.id)
+                axios.get('/api/lligues/' + this.id)
                     .then(response => {
                         console.log("Respuesta de la API:", response.data);
                         this.lliga = response.data;

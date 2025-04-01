@@ -6,6 +6,7 @@ use App\Http\Controllers\LligaController;
 use App\Http\Controllers\EditarPerfilController;
 use App\Http\Controllers\DiaHoraController;
 use App\Http\Controllers\NotificacionsController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\DB;
 
 Route::get('/', function () {
@@ -53,7 +54,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/notificacions', [NotificacionsController::class, 'index'])->name('notificacions.index');
 
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chatMissatges', [ChatController::class, 'getMissatges'])->name('missatges');
+    Route::post('/chatMissatges', [ChatController::class, 'storeMissatge']);
 });
+
 
 // Rutas de autenticación
 Route::get('/login', [UsuarioController::class, 'showLogin'])->name('login');
