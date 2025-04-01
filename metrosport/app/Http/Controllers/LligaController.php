@@ -98,16 +98,13 @@ class LligaController extends Controller
      * Retorna una estructura JSON amb tota la informació requerida per una lliga.
      *
      * Endpoint: GET /api/lliga/{id}/detall
-
      */
     public function getLligaDetallada($id)
     {
         $lliga = Lliga::with([
             'equips.ubicacioCamp',
-            'equips.diaHoras',
-            'equips.partitsJugats.estat',
-            'equips.partitsJugats.ubicacio',
-            'equips.partitsJugats.equips'  // per calcular el rival
+            'equips.diaHoras'
+            // Eliminamos las relaciones de partidos jugados
         ])->find($id);
 
         if (!$lliga) {
@@ -131,32 +128,11 @@ class LligaController extends Controller
                 ];
             })->toArray();
 
-            // Partits jugats: recorrer els partits associats a l'equip
-            $partitsJugats = [];
-            foreach ($equip->partitsJugats as $partit) {
-                // Calcular "rival": si el partit té exactament 2 equips, agafa el nom de l'altre
-                $rival = null;
-                if ($partit->equips->count() == 2) {
-                    foreach ($partit->equips as $otherEquip) {
-                        if ($otherEquip->usuari_id_usuari != $equip->usuari_id_usuari) {
-                            $rival = $otherEquip->nom_equip;
-                            break;
-                        }
-                    }
-                }
-                $partitsJugats[] = [
-                    'rival'     => $rival,
-                    'gols'      => $partit->pivot->gols,
-                    'ubicacio'  => $partit->ubicacio ? $partit->ubicacio->nom_ubicacio : null,
-                    'estat'     => $partit->estat ? $partit->estat->nom_estat : null,
-                ];
-            }
-
             $result['lliga']['equips'][] = [
                 'nom' => $equip->nom_equip,
                 'ubicacio' => $equip->ubicacioCamp ? $equip->ubicacioCamp->nom_ubicacio : null,
-                'disponibilitat' => $disponibilitat,
-                'partits_jugats' => $partitsJugats
+                'disponibilitat' => $disponibilitat
+                // Eliminamos 'partits_jugats'
             ];
         }
 
@@ -164,62 +140,263 @@ class LligaController extends Controller
     }
 
     public function callOpenRouter($id)
+    {
+        $detailResponse = $this->getLligaDetallada($id)->getData(true);
+
+        // Contar equipos para calcular jornadas requeridas
+        $equipos = count($detailResponse['lliga']['equips'] ?? []);
+        $totalPartidos = $equipos * ($equipos - 1); // ida y vuelta
+        $jornadasNecesarias = ceil($totalPartidos / ($equipos / 2)); // 4 partidos por jornada
+
+        $prompt = <<<EOT
+Eres un generador experto de calendarios deportivos para torneos de liga (doble round-robin). Recibirás información de una liga con $equipos equipos.
+
+REQUISITOS CRÍTICOS:
+1. Cada equipo debe enfrentarse a todos los demás exactamente DOS veces (ida y vuelta): una como LOCAL y otra como VISITANTE.
+2. Solo se puede asignar un partido si AMBOS equipos están disponibles en ese día y hora.
+3. El campo de juego debe ser la UBICACIÓN del equipo local.
+4. Cada jornada debe tener exactamente ${equipos}/2 partidos (ej: 4 si hay 8 equipos).
+5. Debes generar EXACTAMENTE $jornadasNecesarias jornadas, enumeradas de 1 a $jornadasNecesarias.
+
+FORMATO ESTRICTO:
 {
-    $detailResponse = $this->getLligaDetallada($id)->getData(true);
-
-    $prompt = <<<EOT
-Eres un generador experto de calendarios deportivos. Recibirás un JSON con información de una liga: sus equipos, su disponibilidad horaria (por día y hora), y sus partidos jugados (incluyendo rival, goles, ubicación y estado).
-
-Tu tarea es generar el calendario de la próxima jornada de partidos. Cada equipo debe jugar exactamente un partido, sin repetir emparejamientos anteriores. Los enfrentamientos deben ser justos, cruzando equipos que no hayan jugado entre sí.
-
-Utiliza la disponibilidad horaria de ambos equipos para encontrar una franja coincidente. El campo de juego será el del equipo listado como local. Si no hay disponibilidad compatible, no se debe crear el partido.
-
-Devuelve exclusivamente un JSON con una lista llamada "jornada", donde cada objeto incluye:
-- equipo_local
-- equipo_visitante
-- dia
-- hora
-- ubicacio
-
-NO escribas explicaciones ni comentarios, solo el JSON.
-EOT;
-
-    $messages = [
-        ["role" => "system", "content" => "Eres un generador de jornadas deportivas que responde solo en formato JSON."],
-        ["role" => "user", "content" => $prompt . "\n\n" . json_encode($detailResponse, JSON_PRETTY_PRINT)]
-    ];
-
-    $apiKey = env('OPENROUTER_API_KEY');
-
-    $response = Http::withHeaders([
-        "Authorization" => "Bearer $apiKey",
-        "Content-Type" => "application/json"
-    ])->post("https://openrouter.ai/api/v1/chat/completions", [
-        "model" => "deepseek/deepseek-chat-v3-0324:free",
-        "messages" => $messages
-    ]);
-
-    $json = $response->json();
-
-    // 1. Extraer contenido del LLM
-    $content = $json['choices'][0]['message']['content'] ?? '{}';
-
-    // 2. Limpiar los backticks y etiquetas de Markdown si existen
-    $content = preg_replace('/^```json|```$/m', '', trim($content));
-
-    try {
-        $parsed = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
-    } catch (\Throwable $e) {
-        return response()->json([
-            'error' => 'Error al parsear JSON del modelo',
-            'raw' => $content
-        ], 500);
+  "calendario": [
+    {
+      "jornada": 1,
+      "partidos": [
+        {
+          "equipo_local": "nombre_equipo",
+          "equipo_visitante": "nombre_equipo",
+          "dia": número_dia,
+          "hora": número_hora,
+          "ubicacion": "nombre_ubicacion"
+        }
+      ]
+    },
+    {
+      "jornada": 2,
+      "partidos": [...]
     }
-
-    return response()->json($parsed);
+  ]
 }
 
+IMPORTANTE:
+- Usa solo horarios en los que AMBOS equipos estén disponibles.
+- Distribuye de forma equitativa los equipos como local y visitante.
+- No incluyas texto ni explicación, solo el JSON estrictamente con ese formato.
+EOT;
 
+        $messages = [
+            ["role" => "system", "content" => "Responde estrictamente en JSON. No incluyas ningún texto fuera del JSON. Cada jornada debe tener partidos válidos con horarios coincidentes entre ambos equipos."],
+            ["role" => "user", "content" => $prompt . "\n\n" . json_encode($detailResponse, JSON_PRETTY_PRINT)]
+        ];
 
+        $apiKey = env('OPENROUTER_API_KEY');
 
+        $response = Http::withHeaders([
+            "Authorization" => "Bearer $apiKey",
+            "Content-Type" => "application/json",
+            "HTTP-Referer" => "https://metrosport.example.com"
+        ])->timeout(300)->post("https://openrouter.ai/api/v1/chat/completions", [
+            "model" => "mistralai/mistral-small-3.1-24b-instruct:free",
+            "messages" => $messages,
+            "max_tokens" => 94000,
+            "temperature" => 0.2
+        ]);
+
+        $json = $response->json();
+
+        if (!isset($json['choices']) || !isset($json['choices'][0]['message']['content'])) {
+            return response()->json([
+                'error' => 'Respuesta inválida de OpenRouter',
+                'response' => $json
+            ], 500);
+        }
+
+        $content = $json['choices'][0]['message']['content'];
+        \Log::info('Contenido original:', ['content' => $content]);
+
+        if (preg_match('/(\{(?:[^{}]|(?R))*\})/s', $content, $matches)) {
+            $jsonContent = $matches[0];
+            \Log::info('JSON extraído con regex:', ['content' => $jsonContent]);
+        } else {
+            $jsonContent = preg_replace('/^```json\n|^```json|^```$|\n```$/m', '', trim($content));
+            $jsonContent = preg_replace('/^[^{]*(\{.*\})[^}]*$/s', '$1', $jsonContent);
+            \Log::info('JSON limpiado:', ['content' => $jsonContent]);
+        }
+
+        try {
+            $parsed = json_decode($jsonContent, true, 512, JSON_THROW_ON_ERROR);
+
+            if (!isset($parsed['calendario'])) {
+                foreach ($parsed as $key => $value) {
+                    if (is_array($value) && isset($value['calendario'])) {
+                        $parsed = $value;
+                        break;
+                    }
+                }
+            }
+
+            if (!isset($parsed['calendario']) || count($parsed['calendario']) < $jornadasNecesarias) {
+                return response()->json([
+                    'error' => 'El calendario generado no contiene todas las jornadas necesarias',
+                    'jornadasEsperadas' => $jornadasNecesarias,
+                    'jornadasRecibidas' => isset($parsed['calendario']) ? count($parsed['calendario']) : 0,
+                    'calendario' => $parsed
+                ], 422);
+            }
+
+            // Guardar el calendario en la base de datos
+            $resultadoGuardado = $this->guardarCalendario($id, $parsed);
+
+            // Añadir información del guardado a la respuesta
+            $parsed['resultado_guardado'] = $resultadoGuardado;
+
+            return response()->json($parsed);
+        } catch (\Throwable $e) {
+            if (preg_match_all('/\{(?:[^{}]|(?R))*\}/s', $content, $allMatches)) {
+                usort($allMatches[0], function ($a, $b) {
+                    return strlen($b) - strlen($a);
+                });
+
+                foreach ($allMatches[0] as $potentialJson) {
+                    try {
+                        $candidate = json_decode($potentialJson, true, 512, JSON_THROW_ON_ERROR);
+                        if (isset($candidate['calendario'])) {
+                            return response()->json($candidate);
+                        }
+                    } catch (\Throwable $innerE) {
+                        continue;
+                    }
+                }
+            }
+
+            return response()->json([
+                'error' => 'Error al parsear JSON del modelo',
+                'raw' => $content,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Guarda los partidos generados por la IA en la base de datos
+     *
+     * @param int $lligaId ID de la liga
+     * @param array $calendario Datos del calendario generado
+     * @return array Resultado de la operación
+     */
+    public function guardarCalendario($lligaId, $calendarioData)
+    {
+        // Verificar que el calendario tenga el formato correcto
+        if (!isset($calendarioData['calendario']) || !is_array($calendarioData['calendario'])) {
+            return [
+                'success' => false,
+                'message' => 'Formato de calendario inválido'
+            ];
+        }
+
+        // Estadísticas para el resultado
+        $stats = [
+            'total_jornadas' => count($calendarioData['calendario']),
+            'total_partidos' => 0,
+            'partidos_creados' => 0,
+            'errores' => []
+        ];
+
+        // Obtener ID del estado "pendiente" (si es siempre 1, podríamos hardcodearlo)
+        $estatPendienteId = 1; // ID del estado "pendiente"
+
+        // Procesar cada jornada
+        foreach ($calendarioData['calendario'] as $jornada) {
+            // Verificar que la jornada tenga el formato correcto
+            if (!isset($jornada['partidos']) || !is_array($jornada['partidos'])) {
+                $stats['errores'][] = "Jornada {$jornada['jornada']} sin partidos válidos";
+                continue;
+            }
+
+            // Procesar cada partido de la jornada
+            foreach ($jornada['partidos'] as $partido) {
+                $stats['total_partidos']++;
+
+                try {
+                    // 1. Encontrar los equipos por nombre
+                    $equipoLocal = \App\Models\Equip::where('nom_equip', $partido['equipo_local'])
+                        ->where('lliga_id_lliga', $lligaId)
+                        ->first();
+
+                    $equipoVisitante = \App\Models\Equip::where('nom_equip', $partido['equipo_visitante'])
+                        ->where('lliga_id_lliga', $lligaId)
+                        ->first();
+
+                    if (!$equipoLocal || !$equipoVisitante) {
+                        $stats['errores'][] = "Equipo no encontrado: " .
+                            (!$equipoLocal ? $partido['equipo_local'] : $partido['equipo_visitante']);
+                        continue;
+                    }
+
+                    // 2. Encontrar la ubicación
+                    $ubicacion = \App\Models\UbicacioCamp::where('nom_ubicacio', $partido['ubicacion'])
+                        ->first();
+
+                    if (!$ubicacion) {
+                        // Si no se encuentra la ubicación, usar la del equipo local
+                        $ubicacion = \App\Models\UbicacioCamp::where('equip_usuari_id_usuari', $equipoLocal->usuari_id_usuari)
+                            ->first();
+
+                        if (!$ubicacion) {
+                            $stats['errores'][] = "Ubicación no encontrada: {$partido['ubicacion']}";
+                            continue;
+                        }
+                    }
+
+                    // 3. Encontrar el registro de dia_hora correspondiente
+                    $diaHora = \App\Models\DiaHora::where('dia', $partido['dia'])
+                        ->where('hora', $partido['hora'])
+                        ->first();
+
+                    if (!$diaHora) {
+                        $stats['errores'][] = "Día/hora no encontrado: {$partido['dia']}/{$partido['hora']}";
+                        continue;
+                    }
+
+                    // 4. Insertar en la tabla partit
+                    $partidoModel = new \App\Models\Partit();
+                    $partidoModel->jornada = $jornada['jornada'];
+                    $partidoModel->estat_partit_id_estat = $estatPendienteId;
+                    $partidoModel->ubicacio_camp_id_ubicacio_camp = $ubicacion->id_ubicacio_camp;
+                    $partidoModel->lliga_id_lliga = $lligaId;
+                    $partidoModel->dia_hora_id = $diaHora->id; // Asignar el ID de dia_hora
+                    $partidoModel->save();
+
+                    // 5. Insertar en la tabla partit_has_equip para el equipo local
+                    $partidoModel->equips()->attach($equipoLocal->usuari_id_usuari, [
+                        'partit_lliga_id_lliga' => $lligaId,
+                        'local_visitant' => 'local',
+                        'gols' => 0 // Inicialmente sin goles
+                    ]);
+
+                    // 6. Insertar en la tabla partit_has_equip para el equipo visitante
+                    $partidoModel->equips()->attach($equipoVisitante->usuari_id_usuari, [
+                        'partit_lliga_id_lliga' => $lligaId,
+                        'local_visitant' => 'visitant',
+                        'gols' => 0 // Inicialmente sin goles
+                    ]);
+
+                    $stats['partidos_creados']++;
+                } catch (\Exception $e) {
+                    $stats['errores'][] = "Error al crear partido: " . $e->getMessage();
+                    \Log::error('Error al crear partido', [
+                        'error' => $e->getMessage(),
+                        'partido' => $partido
+                    ]);
+                }
+            }
+        }
+
+        return [
+            'success' => $stats['partidos_creados'] > 0,
+            'stats' => $stats
+        ];
+    }
 }

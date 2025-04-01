@@ -18,7 +18,9 @@ class Partit extends Model
     protected $fillable = [
         'lliga_id_lliga',
         'ubicacio_camp_id_ubicacio_camp',
-        'estat_partit_id_estat'
+        'estat_partit_id_estat',
+        'dia_hora_id',
+        'jornada'     // Si quieres guardar también la jornada
     ];
 
     // Relación con Lliga
@@ -39,6 +41,12 @@ class Partit extends Model
         return $this->belongsTo(EstatPartit::class, 'estat_partit_id_estat', 'id_estat');
     }
 
+    // Nueva relación con DiaHora
+    public function diaHora()
+    {
+        return $this->belongsTo(DiaHora::class, 'dia_hora_id', 'id');
+    }
+
     // Relación con Equipos (Muchos a Muchos)
     public function equips()
     {
@@ -47,6 +55,6 @@ class Partit extends Model
             'partit_has_equip',
             'partit_id_partit',
             'equip_usuari_id_usuari'
-        )->withPivot('gols');
+        )->withPivot('gols', 'local_visitant');
     }
 }
