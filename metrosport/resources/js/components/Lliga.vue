@@ -64,17 +64,22 @@
         </div>
 
         <div class="justify-content-center d-flex align-items-center">
-            <form v-if="!lliga.usuario_inscrito && compatibilidadProp && compatibilidadProp.compatible"
-                  :action="`${getBaseUrl()}/lligues/${id}/inscribirse`"
-                  method="POST">
-                <input type="hidden" name="_token" :value="getCsrfToken()">
+            <!-- Comprobamos si la liga está completa -->
+            <div v-if="isLligaCompleta" class="alert alert-warning text-center mb-4">
+                Aquesta lliga ja està completa. No es poden acceptar més inscripcions.
+            </div>
+
+            <form v-if="!lliga.usuario_inscrito && compatibilidadProp && compatibilidadProp.compatible && !isLligaCompleta"
+                  @submit.prevent="submitForm">
                 <button type="submit" class="btn btn-inscriuret">Inscriure'm</button>
             </form>
-            <button v-else-if="!lliga.usuario_inscrito && compatibilidadProp && !compatibilidadProp.compatible"
+
+            <button v-else-if="!lliga.usuario_inscrito && ((compatibilidadProp && !compatibilidadProp.compatible) || isLligaCompleta)"
                    class="btn btn-inscriuret-disabled"
                    disabled>
-                No es pot inscriure
+                {{ isLligaCompleta ? 'Lliga completa' : 'No es pot inscriure' }}
             </button>
+
             <p v-else-if="lliga.usuario_inscrito" class="ya-inscrito">Ja estàs inscrit a aquesta lliga</p>
         </div>
     </div>
@@ -91,12 +96,18 @@
                 lliga: {}
             };
         },
+        computed: {
+            // Verificar si la liga está completa
+            isLligaCompleta() {
+                return this.lliga.participants_actualment >= this.lliga.nro_equips_participants;
+            }
+        },
         mounted() {
             this.fetchLliga();
         },
         methods: {
             fetchLliga() {
-                axios.get(`lligues/${this.id}`)
+                axios.get(`api/lligues/${this.id}`)
                     .then(response => {
                         console.log("Respuesta de la API:", response.data);
                         this.lliga = response.data;
@@ -109,10 +120,30 @@
                 // Obtener el token CSRF de la meta tag
                 return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
             },
-            getBaseUrl() {
-                const currentPath = window.location.pathname;
-                const pathParts = currentPath.split('/lligues/');
-                return pathParts[0];
+            submitForm() {
+                // Verificamos nuevamente si la liga está completa
+                if (this.isLligaCompleta) {
+                    alert("Aquesta lliga ja està completa. No es poden acceptar més inscripcions.");
+                    return;
+                }
+
+                // Usar axios para enviar el formulario con CSRF token
+                axios.post(`lligues/${this.id}/inscribirse`, {}, {
+                    headers: {
+                        'X-CSRF-TOKEN': this.getCsrfToken()
+                    }
+                })
+                .then(response => {
+                    console.log("Respuesta de inscripción:", response.data);
+                    // Recargar los datos de la liga después de inscribirse
+                    this.fetchLliga();
+                    // Mensaje opcional de éxito
+                    alert("T'has inscrit correctament a la lliga!");
+                })
+                .catch(error => {
+                    console.error("Error en la inscripción:", error);
+                    alert("Hi ha hagut un error en la inscripció. Torna a intentar-ho més tard.");
+                });
             }
         }
     }
