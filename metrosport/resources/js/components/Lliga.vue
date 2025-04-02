@@ -66,7 +66,7 @@
         <div class="justify-content-center d-flex align-items-center">
             <!-- Mensaje de advertencia para liga completa -->
             <div v-if="isLligaCompleta" class="alert alert-warning text-center mb-4">
-                Aquesta lliga ja està completa. No es poden acceptar més inscripcions.
+                Aquesta lliga ja està completa. No es poden inscriure més equips.
             </div>
 
             <!-- Mensaje de advertencia para usuario ya inscrito en otra liga -->
@@ -87,12 +87,12 @@
                 {{
                    isLligaCompleta ? 'Lliga completa' :
                    lliga.ya_en_otra_liga ? 'Ja estàs en una altra lliga' :
-                   'No es pot inscriure'
+                   'No et pots inscriure'
                 }}
             </button>
 
             <!-- Mensaje si ya está inscrito en esta liga -->
-            <p v-else-if="lliga.usuario_inscrito" class="ya-inscrito">Ja estàs inscrit a aquesta lliga</p>
+            <p v-else-if="lliga.usuario_inscrito" class="ya-inscrito">Ja estàs inscrit en aquesta lliga</p>
         </div>
     </div>
 </template>

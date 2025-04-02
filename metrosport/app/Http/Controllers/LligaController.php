@@ -570,7 +570,8 @@ FORMATO DE RESPUESTA REQUERIDO (JSON):
   "mensaje": "Explicación simple para el usuario"
 }
 
-IMPORTANTE: Solo necesito saber si puede unirse (true) o no (false), y un mensaje simple para el usuario.
+IMPORTANTE: Solo necesito saber si puede unirse (true) o no (false), y un mensaje simple para el usuario. Si el equipo se puede unir
+que diga: Tu equipo puede unirse a la liga. Si no, que diga: Tu equipo no puede unirse a la liga porque la disponibilidad horaria no coincide.
 EOT;
 
         $messages = [

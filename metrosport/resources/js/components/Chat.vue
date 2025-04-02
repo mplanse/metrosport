@@ -60,7 +60,7 @@ export default {
           this.missatges = response.data.missatges;
           this.userId = response.data.userId;
           this.$nextTick(() => {
-            this.scrollToBottom();
+            this.scrollToBottom(); // Desplazar hacia abajo después de actualizar los mensajes
           });
         })
         .catch((error) => {
@@ -74,18 +74,12 @@ export default {
         text: this.newMessage,
       };
 
+      this.newMessage = "";
+
       axios
         .post("/chatMissatges", messageData)
-        .then((response) => {
-          const newMissatge = response.data.missatge;
-          this.missatges.push(newMissatge); // Agregar el mensaje al chat
-          this.newMessage = ""; // Limpiar el campo de entrada
-          this.$nextTick(() => {
-            this.scrollToBottom(); // Desplazar hacia abajo
-          });
-
-          // Refrescar la página después de enviar el mensaje
-          window.location.reload();
+        .then(() => {
+          this.fetchMissatges(); // Volver a llamar a la API para obtener los nuevos mensajes
         })
         .catch((error) => {
           console.error("Error enviando el mensaje:", error);
@@ -109,7 +103,7 @@ export default {
     },
     formatTime(timestamp) {
       const date = new Date(timestamp);
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Formato de hora local
+      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); // Formato de hora local
     },
   },
 };
