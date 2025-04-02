@@ -83,6 +83,9 @@ export default {
           this.$nextTick(() => {
             this.scrollToBottom(); // Desplazar hacia abajo
           });
+
+          // Refrescar la página después de enviar el mensaje
+          window.location.reload();
         })
         .catch((error) => {
           console.error("Error enviando el mensaje:", error);
@@ -150,6 +153,7 @@ export default {
   background-color: #3498DB;
   align-self: flex-end;
   text-align: right;
+  color: rgba(255, 255, 255, 0.863);
 }
 
 .chat-message-received {
@@ -168,6 +172,15 @@ export default {
   font-size: 1em;
   color: #000000;
 }
+
+.chat-message-sent .chat-message-body {
+    color: white;
+}
+
+.chat-message-sent .chat-message-timestamp {
+    color: rgb(225, 225, 225);
+}
+
 
 .chat-message-timestamp {
   font-size: 0.8em;
@@ -191,7 +204,7 @@ export default {
 
 .chat-input button {
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #E67E22; /* Color naranja */
   color: white;
   border: none;
   border-radius: 8px;
@@ -199,6 +212,6 @@ export default {
 }
 
 .chat-input button:hover {
-  background-color: #0056b3;
+  background-color: #D35400; /* Un tono más oscuro para el hover */
 }
 </style>
