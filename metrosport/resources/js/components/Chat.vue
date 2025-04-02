@@ -142,6 +142,8 @@ export default {
 .chat-input {
   display: flex;
   margin-top: 10px;
+  flex-direction: row; /* Mantener el input y el botón en una fila */
+  align-items: center;
 }
 
 /* Campo de texto */
@@ -150,7 +152,7 @@ export default {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  margin-right: 10px;
+  margin-right: 10px; /* Espaciado entre el input y el botón */
 }
 
 /* Botón de enviar */
@@ -183,16 +185,17 @@ export default {
   }
 
   .chat-input {
-    flex-direction: column; /* Apilar el input y el botón */
+    flex-direction: row; /* Mantener el input y el botón en una fila */
   }
 
   .chat-input input {
-    margin-bottom: 10px; /* Espaciado entre el input y el botón */
-    margin-right: 0; /* Eliminar margen derecho */
+    margin-bottom: 0; /* Eliminar margen inferior */
+    margin-right: 10px; /* Espaciado entre el input y el botón */
   }
 
   .chat-input button {
-    width: 100%; /* Botón ocupa todo el ancho */
+    width: auto; /* Ajustar el ancho del botón */
+    padding: 10px; /* Reducir el padding */
   }
 }
 
@@ -216,6 +219,19 @@ export default {
 
   .chat-message-timestamp {
     font-size: 0.7em; /* Reducir el tamaño de fuente del timestamp */
+  }
+
+  .chat-input {
+    flex-direction: row; /* Mantener el input y el botón en una fila */
+  }
+
+  .chat-input input {
+    margin-right: 10px; /* Espaciado entre el input y el botón */
+  }
+
+  .chat-input button {
+    width: auto; /* Ajustar el ancho del botón */
+    padding: 10px; /* Reducir el padding */
   }
 }
 
