@@ -53,11 +53,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/notificacions', [NotificacionsController::class, 'index'])->name('notificacions.index');
 
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+
+    Route::post('/lligues/{id}/inscribirse', [LligaController::class, 'inscribirEquipo'])
+        ->name('lligues.inscribirse');
 });
 
 // Rutas de autenticación
 Route::get('/login', [UsuarioController::class, 'showLogin'])->name('login');
 Route::post('/login', [UsuarioController::class, 'login']);
+
 
 Route::get('/register', [UsuarioController::class, 'showRegister'])->name('register');
 Route::post('/register1', [UsuarioController::class, 'register1'])->name('register1');
@@ -66,14 +70,4 @@ Route::get('/pepe', function () {
     return view('lligues.pepe');
 });
 
-Route::get('/api/equip-usuari', function () {
-    $usuari_id = 2;
 
-    $equip = DB::table('equip')
-        ->leftJoin('ubicacio_camp', 'equip.usuari_id_usuari', '=', 'ubicacio_camp.equip_usuari_id_usuari')
-        ->select('equip.nom_equip', 'equip.url_imagen', 'ubicacio_camp.nom_ubicacio')
-        ->where('equip.usuari_id_usuari', $usuari_id)
-        ->first();
-
-    return response()->json($equip);
-});

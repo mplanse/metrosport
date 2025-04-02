@@ -10,6 +10,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Notificacions;
 use Illuminate\Support\Facades\Http;
+use App\Models\DiaHora;
+use App\Models\Partit;
+use App\Models\PartitHasEquip;
+use App\Models\EstatPartit;
 
 class LligaController extends Controller
 {
@@ -25,17 +29,51 @@ class LligaController extends Controller
 
     public function getLligaInfo($id)
     {
-        $lliga = Lliga::with([
-            'equips.ubicacioCamp',
-            'partits.estat',
-            'partits.ubicacio'
-        ])->find($id);
+        try {
+            // Modificamos para evitar cargar relaciones que puedan causar problemas
+            $lliga = Lliga::with([
+                'equips.ubicacioCamp'
+            ])->find($id);
 
-        if (!$lliga) {
-            return response()->json(['error' => 'Lliga no trobada'], 404);
+            // Cargamos los partidos de forma separada con eager loading adecuado
+            if ($lliga) {
+                $partits = Partit::with(['ubicacio', 'estat', 'diaHora'])
+                    ->where('lliga_id_lliga', $id)
+                    ->get();
+
+                $lliga->setAttribute('partits', $partits);
+            }
+
+            if (!$lliga) {
+                return response()->json(['error' => 'Lliga no trobada'], 404);
+            }
+
+            // Añadir información de si el usuario ya está inscrito
+            $usuarioInscrito = false;
+
+            if (auth()->check()) {
+                $usuarioId = auth()->user()->id_usuari;
+
+                // Verificar si el usuario ya tiene un equipo en esta liga
+                $usuarioInscrito = $lliga->equips()->where('usuari_id_usuari', $usuarioId)->exists();
+            }
+
+            // Añadir la información al resultado
+            $result = $lliga->toArray();
+            $result['usuario_inscrito'] = $usuarioInscrito;
+
+            return response()->json($result);
+        } catch (\Exception $e) {
+            \Log::error('Error en getLligaInfo: ' . $e->getMessage(), [
+                'id' => $id,
+                'exception' => $e
+            ]);
+
+            return response()->json([
+                'error' => 'Error al cargar la información de la liga',
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json($lliga);
     }
 
     public function store(Request $request)
@@ -392,9 +430,254 @@ EOT;
             }
         }
 
+        // Si se crearon partidos, enviar notificaciones a todos los equipos
+        if ($stats['partidos_creados'] > 0) {
+            // Obtener info de la liga
+            $liga = \App\Models\Lliga::find($lligaId);
+
+            // Obtener todos los equipos de la liga
+            $equipos = \App\Models\Equip::where('lliga_id_lliga', $lligaId)->get();
+
+            // Crear notificación para cada equipo
+            foreach ($equipos as $equipo) {
+                try {
+                    \App\Models\Notificacions::create([
+                        'missatge_notificacio' => "Ya tienes partidos asignados para la liga: {$liga->nom_lliga}. Consulta el calendario para ver los detalles.",
+                        'equip_usuari_id_usuari' => $equipo->usuari_id_usuari,
+                        'timestamp' => now(),
+                        'tipus_notificacio' => 1 // Tipo 1 para calendario
+                    ]);
+                } catch (\Exception $e) {
+                    $stats['errores'][] = "Error al crear notificación para el equipo {$equipo->nom_equip}: " . $e->getMessage();
+                    \Log::error('Error al crear notificación', [
+                        'error' => $e->getMessage(),
+                        'equipo' => $equipo->nom_equip
+                    ]);
+                }
+            }
+
+            $stats['notificaciones_enviadas'] = $equipos->count();
+        }
+
         return [
             'success' => $stats['partidos_creados'] > 0,
             'stats' => $stats
         ];
+    }
+
+    /**
+     * Verifica si el usuario actual puede unirse a una liga basado en su disponibilidad horaria
+     *
+     * @param int $id ID de la liga
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function verificarCompatibilidadUnirse($id)
+    {
+        // Obtener el ID del usuario actual
+        // $usuarioId = auth()->user()->id_usuari;
+        $usuarioId = auth()->user()->id_usuari;
+
+
+        // Obtener el equipo del usuario actual
+        $equipoUsuario = \App\Models\Equip::where('usuari_id_usuari', $usuarioId)->first();
+
+        if (!$equipoUsuario) {
+            return response()->json([
+                'compatible' => false,
+                'mensaje' => 'No tienes un equipo creado. Debes crear un equipo antes de unirte a una liga.'
+            ]);
+        }
+
+        // Obtener la disponibilidad horaria del equipo del usuario
+        $disponibilidadUsuario = DiaHora::whereHas('equips', function($query) use ($usuarioId) {
+            $query->where('equip_usuari_id_usuari', $usuarioId);
+        })->get()->map(function($dh) {
+            return [
+                'dia' => $dh->dia,
+                'hora' => $dh->hora
+            ];
+        })->toArray();
+
+        if (empty($disponibilidadUsuario)) {
+            return response()->json([
+                'compatible' => false,
+                'mensaje' => 'No has configurado tu disponibilidad horaria. Configúrala antes de unirte a una liga.'
+            ]);
+        }
+
+        // Obtener la información detallada de la liga
+        $ligaResponse = $this->getLligaDetallada($id)->getData(true);
+
+        if (!isset($ligaResponse['lliga']) || !isset($ligaResponse['lliga']['equips'])) {
+            return response()->json([
+                'compatible' => false,
+                'mensaje' => 'No se pudo obtener información de la liga.'
+            ]);
+        }
+
+        // Si no hay equipos en la liga, no hay problema de compatibilidad
+        if (count($ligaResponse['lliga']['equips']) == 0) {
+            return response()->json([
+                'compatible' => true,
+                'mensaje' => 'Puedes unirte a esta liga.'
+            ]);
+        }
+
+        // Añadir la información del equipo del usuario a los datos de la liga
+        $equiposData = $ligaResponse['lliga']['equips'];
+        $equiposData[] = [
+            'nom' => $equipoUsuario->nom_equip,
+            'ubicacio' => $equipoUsuario->ubicacioCamp ? $equipoUsuario->ubicacioCamp->nom_ubicacio : null,
+            'disponibilitat' => $disponibilidadUsuario,
+            'es_nuevo' => true // Marcamos que este es el equipo que quiere unirse
+        ];
+
+        // Preparar datos para enviar a la IA
+        $dataParaIA = [
+            'lliga' => [
+                'id' => $ligaResponse['lliga']['id'],
+                'nom' => $ligaResponse['lliga']['nom'],
+                'equips' => $equiposData
+            ]
+        ];
+
+        // Construir el prompt para la IA
+        $prompt = <<<EOT
+Eres un asistente experto en verificar la compatibilidad de horarios para ligas deportivas.
+Analiza si un nuevo equipo puede unirse a una liga existente basándose en su disponibilidad horaria.
+
+DATOS A ANALIZAR:
+- El último equipo en la lista (marcado con "es_nuevo": true) es el que quiere unirse a la liga
+- Cada equipo tiene disponibilidad en ciertos días y horas
+- Para que el nuevo equipo pueda unirse, debe tener suficientes franjas horarias compatibles con CADA UNO de los equipos existentes
+
+ANÁLISIS REQUERIDO:
+1. Verifica si el nuevo equipo tiene al menos una franja horaria compatible con cada equipo existente
+2. Un equipo necesita jugar dos veces contra cada otro equipo (local y visitante)
+3. Para ser compatible, el nuevo equipo debe poder jugar contra todos los equipos actuales
+
+FORMATO DE RESPUESTA REQUERIDO (JSON):
+{
+  "compatible": true/false,
+  "mensaje": "Explicación simple para el usuario"
+}
+
+IMPORTANTE: Solo necesito saber si puede unirse (true) o no (false), y un mensaje simple para el usuario.
+EOT;
+
+        $messages = [
+            ["role" => "system", "content" => "Responde estrictamente en JSON con formato simple: compatible (true/false) y mensaje."],
+            ["role" => "user", "content" => $prompt . "\n\n" . json_encode($dataParaIA, JSON_PRETTY_PRINT)]
+        ];
+
+        $apiKey = env('OPENROUTER_API_KEY');
+
+        $response = Http::withHeaders([
+            "Authorization" => "Bearer $apiKey",
+            "Content-Type" => "application/json",
+            "HTTP-Referer" => "https://metrosport.example.com"
+        ])->timeout(60)->post("https://openrouter.ai/api/v1/chat/completions", [
+            "model" => "mistralai/mistral-small-3.1-24b-instruct:free",
+            "messages" => $messages,
+            "max_tokens" => 500,
+            "temperature" => 0.2
+        ]);
+
+        $json = $response->json();
+
+        if (!isset($json['choices']) || !isset($json['choices'][0]['message']['content'])) {
+            return response()->json([
+                'compatible' => false,
+                'mensaje' => 'Error al verificar compatibilidad. Inténtalo más tarde.'
+            ], 500);
+        }
+
+        $content = $json['choices'][0]['message']['content'];
+
+        try {
+            // Intentar extraer el JSON de la respuesta
+            if (preg_match('/(\{(?:[^{}]|(?R))*\})/s', $content, $matches)) {
+                $jsonContent = $matches[0];
+            } else {
+                $jsonContent = preg_replace('/^```json\n|^```json|^```$|\n```$/m', '', trim($content));
+                $jsonContent = preg_replace('/^[^{]*(\{.*\})[^}]*$/s', '$1', $jsonContent);
+            }
+
+            $parsed = json_decode($jsonContent, true, 512, JSON_THROW_ON_ERROR);
+
+            // Asegurar que solo devolvemos compatible y mensaje
+            return response()->json([
+                'compatible' => $parsed['compatible'] ?? false,
+                'mensaje' => $parsed['mensaje'] ?? 'No es posible verificar la compatibilidad en este momento.'
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'compatible' => false,
+                'mensaje' => 'Error al verificar compatibilidad. Inténtalo más tarde.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Inscribe al equipo del usuario actual en una liga
+     *
+     * @param int $id ID de la liga
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function inscribirEquipo($id)
+    {
+        try {
+            // Verificar que la liga existe
+            $liga = Lliga::find($id);
+            if (!$liga) {
+                return redirect()->back()->with('error', 'Liga no encontrada');
+            }
+
+            // Verificar que el usuario tiene un equipo
+            $usuarioId = auth()->user()->id_usuari;
+            $equipo = Equip::where('usuari_id_usuari', $usuarioId)->first();
+
+            if (!$equipo) {
+                return redirect()->back()->with('error', 'No tienes un equipo creado');
+            }
+
+            // Verificar que no está inscrito ya
+            $yaInscrito = $liga->equips()->where('usuari_id_usuari', $usuarioId)->exists();
+            if ($yaInscrito) {
+                return redirect()->back()->with('error', 'Ya estás inscrito en esta liga');
+            }
+
+            // Verificar compatibilidad
+            $compatibilidad = $this->verificarCompatibilidadUnirse($id)->getData(true);
+            if (!$compatibilidad['compatible']) {
+                return redirect()->back()->with('error', $compatibilidad['mensaje']);
+            }
+
+            // Actualizar el equipo con el ID de la liga
+            $equipo->lliga_id_lliga = $id;
+            $equipo->save();
+
+            // Incrementar contador de participantes
+            $liga->participants_actualment = ($liga->participants_actualment ?? 0) + 1;
+            $liga->save();
+
+            // Crear notificación
+            Notificacions::create([
+                'missatge_notificacio' => "Te has inscrito correctamente en la liga: {$liga->nom_lliga}",
+                'equip_usuari_id_usuari' => $usuarioId,
+                'timestamp' => now(),
+                'tipus_notificacio' => 2 // Tipo 2 para inscripción
+            ]);
+
+            return redirect()->back()->with('success', '¡Te has inscrito correctamente a la liga!');
+        } catch (\Exception $e) {
+            \Log::error('Error al inscribirse en liga', [
+                'error' => $e->getMessage(),
+                'liga_id' => $id,
+                'usuario_id' => auth()->user()->id_usuari
+            ]);
+
+            return redirect()->back()->with('error', 'Error al inscribirse en la liga');
+        }
     }
 }

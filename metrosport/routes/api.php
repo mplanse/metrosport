@@ -25,6 +25,7 @@ Route::get('/lligues/{id}', [LligaController::class, 'getLligaInfo'])->name('lli
 // Endpoint públic o autenticat segons la teva configuració:
 Route::get('/lliga/{id}/openrouter', [LligaController::class, 'callOpenRouter'])->name('lliga.openrouter');
 
+Route::get('/lligues/{id}/verificar-compatibilidad', [LligaController::class, 'verificarCompatibilidadUnirse'])->name('lligues.verificar-compatibilidad');
 
 
 

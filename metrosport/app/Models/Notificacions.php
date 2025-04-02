@@ -12,7 +12,7 @@ class Notificacions extends Model
     protected $table = 'notificacions';
 
     // La tabla usa 'equip_usuari_id_usuari' como clave primaria
-    protected $primaryKey = 'equip_usuari_id_usuari';
+    protected $primaryKey = 'id_notificacio';
 
     // Deshabilitar timestamps si no existen campos created_at y updated_at
     public $timestamps = false;

@@ -1,43 +1,50 @@
 <template>
     <div>
-        <h3 class="fw-bold title">{{ lliga.nom_lliga }}</h3>
-        <div class="card">
+        <!-- Mensaje de compatibilidad -->
+        <div v-if="compatibilidadProp" class="alert" :class="compatibilidadProp.compatible ? 'alert-success' : 'alert-warning'">
+            {{ compatibilidadProp.mensaje }}
+        </div>
+
+        <h3 class="fw-bold title">{{ lliga.nom_lliga || 'Cargando...' }}</h3>
+        <div class="card" v-if="lliga.nom_lliga">
             <div class="row p-5">
                 <div class="col-md-6 div-imatge">
-                    <img :src="`../storage/${lliga.url_imagen}`" class="img-fluid rounded-start w-100" alt="Lliga">
+                    <img v-if="lliga.url_imagen" :src="`../storage/${lliga.url_imagen}`" class="img-fluid rounded-start w-100" alt="Lliga">
+                    <div v-else style="height: 20rem; background: #f2f2f2; display: flex; align-items: center; justify-content: center;">
+                        Sin imagen
+                    </div>
                 </div>
                 <div class="col-md-6 div-info">
                     <div class="card-body p-0">
                         <div class="info p-4 ">
                             <div class="d-flex justify-content-between">
                                 <p class="card-text"><strong>Ubicació:</strong></p>
-                                <p class="card-text text-right">{{ lliga.lloc_lliga }}</p>
+                                <p class="card-text text-right">{{ lliga.lloc_lliga || 'No disponible' }}</p>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <p class="card-text"><strong>Esport:</strong></p>
-                                <p class="card-text text-right">{{ lliga.esport }}</p>
+                                <p class="card-text text-right">{{ lliga.esport || 'No disponible' }}</p>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <p class="card-text"><strong>Participants:</strong></p>
-                                <p class="card-text text-right">{{ lliga.participants_actualment }} apuntats de {{ lliga.nro_equips_participants }}</p>
+                                <p class="card-text text-right">{{ lliga.participants_actualment || 0 }} apuntats de {{ lliga.nro_equips_participants || 0 }}</p>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <p class="card-text"><strong>Persones necessàries per equip:</strong></p>
-                                <p class="card-text text-right">{{ lliga.persones_equip }}</p>
+                                <p class="card-text text-right">{{ lliga.persones_equip || 0 }}</p>
                             </div>
                             <div class="d-flex justify-content-between fw-bold">
                                 <p class="card-text"><strong>Preu de l'entrada:</strong></p>
-                                <p class="card-text text-right">{{ lliga.preu_entrada }}€</p>
+                                <p class="card-text text-right">{{ lliga.preu_entrada || 0 }}€</p>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
         </div>
 
-        <h4 class=" equips-text">Equips inscrits</h4>
-        <div class="row info-lliga-row">
+        <h4 class="equips-text" v-if="lliga.equips">Equips inscrits</h4>
+        <div class="row info-lliga-row" v-if="lliga.equips">
             <div v-if="lliga.equips && lliga.equips.length > 0">
                 <div class="col-12 mb-4" v-for="equip in lliga.equips" :key="equip.nom_equip">
                     <div class="card">
@@ -57,16 +64,27 @@
         </div>
 
         <div class="justify-content-center d-flex align-items-center">
-            <button class="btn btn-inscriuret">Inscriure'm</button>
+            <form v-if="!lliga.usuario_inscrito && compatibilidadProp && compatibilidadProp.compatible"
+                  :action="`${getBaseUrl()}/lligues/${id}/inscribirse`"
+                  method="POST">
+                <input type="hidden" name="_token" :value="getCsrfToken()">
+                <button type="submit" class="btn btn-inscriuret">Inscriure'm</button>
+            </form>
+            <button v-else-if="!lliga.usuario_inscrito && compatibilidadProp && !compatibilidadProp.compatible"
+                   class="btn btn-inscriuret-disabled"
+                   disabled>
+                No es pot inscriure
+            </button>
+            <p v-else-if="lliga.usuario_inscrito" class="ya-inscrito">Ja estàs inscrit a aquesta lliga</p>
         </div>
-
     </div>
-
 </template>
+
 <script>
     export default {
         props: {
             id: Number,
+            compatibilidadProp: Object
         },
         data() {
             return {
@@ -78,7 +96,7 @@
         },
         methods: {
             fetchLliga() {
-                axios.get('lligues/' + this.id)
+                axios.get(`lligues/${this.id}`)
                     .then(response => {
                         console.log("Respuesta de la API:", response.data);
                         this.lliga = response.data;
@@ -86,12 +104,22 @@
                     .catch(error => {
                         console.error("Error obteniendo la liga:", error);
                     });
+            },
+            getCsrfToken() {
+                // Obtener el token CSRF de la meta tag
+                return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            },
+            getBaseUrl() {
+                const currentPath = window.location.pathname;
+                const pathParts = currentPath.split('/lligues/');
+                return pathParts[0];
             }
         }
     }
 </script>
-<style scoped>
 
+<style scoped>
+    /* Los estilos se mantienen igual */
     .equips-text {
         margin-bottom: 30px;
     }
@@ -169,6 +197,25 @@
         background-color: #E67E22;
         border: 1px solid black;
         transform: scale(1.1);
+    }
+
+    .btn-inscriuret-disabled {
+        background-color: #ccc;
+        border: 1px solid #999;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: not-allowed;
+        margin-bottom: 40px;
+        margin-top: 20px;
+        opacity: 0.7;
+    }
+
+    .ya-inscrito {
+        color: #27AE60;
+        font-weight: bold;
+        margin-bottom: 40px;
+        margin-top: 20px;
     }
 
     @media (max-width: 999px) {
