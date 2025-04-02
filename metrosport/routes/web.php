@@ -55,8 +55,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
 
-    Route::post('/lligues/{id}/inscribirse', [LligaController::class, 'inscribirEquipo'])
-        ->name('lligues.inscribirse');
+    Route::post('/lligues/{id}/inscribirse', [LligaController::class, 'inscribirEquipo'])->name('lligues.inscribirse');
     Route::get('/chatMissatges', [ChatController::class, 'getMissatges'])->name('missatges');
     Route::post('/chatMissatges', [ChatController::class, 'storeMissatge']);
 });
