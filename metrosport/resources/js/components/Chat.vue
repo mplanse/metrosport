@@ -116,21 +116,107 @@ export default {
 </script>
 
 <style>
+/* Contenedor principal */
 .chat-container {
   max-width: 900px;
   margin: 0 auto;
   font-family: Arial, sans-serif;
+  height: 80vh; /* Ocupa el 90% de la altura de la pantalla */
+  display: flex;
+  flex-direction: column;
 }
 
+/* Caja del chat */
 .chat-box {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 10px;
-  height: 400px;
+  flex: 1; /* Ocupa todo el espacio disponible */
   overflow-y: auto;
   background-color: #f9f9f9;
   display: flex;
   flex-direction: column;
+}
+
+/* Entrada del chat */
+.chat-input {
+  display: flex;
+  margin-top: 10px;
+}
+
+/* Campo de texto */
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-right: 10px;
+}
+
+/* Botón de enviar */
+.chat-input button {
+  padding: 10px 20px;
+  background-color: #E67E22;
+  border: 1px solid black;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.chat-input button:hover {
+  background-color: #D35400;
+  transform: scale(1.1);
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 768px) {
+  .chat-container {
+    max-width: 100%;
+    padding: 0 10px;
+  }
+
+  .chat-box {
+    height: auto; /* Ajustar dinámicamente */
+  }
+
+  .chat-message {
+    max-width: 90%; /* Aumentar el ancho de los mensajes */
+  }
+
+  .chat-input {
+    flex-direction: column; /* Apilar el input y el botón */
+  }
+
+  .chat-input input {
+    margin-bottom: 10px; /* Espaciado entre el input y el botón */
+    margin-right: 0; /* Eliminar margen derecho */
+  }
+
+  .chat-input button {
+    width: 100%; /* Botón ocupa todo el ancho */
+  }
+}
+
+/* Responsividad para pantallas muy pequeñas (teléfonos) */
+@media (max-width: 480px) {
+  .chat-box {
+    height: auto; /* Ajustar dinámicamente */
+  }
+
+  .chat-message {
+    font-size: 0.9em; /* Reducir el tamaño de fuente de los mensajes */
+  }
+
+  .chat-message-header {
+    font-size: 0.8em; /* Reducir el tamaño de fuente del encabezado */
+  }
+
+  .chat-message-body {
+    font-size: 0.9em; /* Reducir el tamaño de fuente del cuerpo */
+  }
+
+  .chat-message-timestamp {
+    font-size: 0.7em; /* Reducir el tamaño de fuente del timestamp */
+  }
 }
 
 .chat-date {
@@ -174,44 +260,17 @@ export default {
 }
 
 .chat-message-sent .chat-message-body {
-    color: white;
+  color: white;
 }
 
 .chat-message-sent .chat-message-timestamp {
-    color: rgb(225, 225, 225);
+  color: rgb(225, 225, 225);
 }
-
 
 .chat-message-timestamp {
   font-size: 0.8em;
   color: #141414;
   text-align: right;
   margin-top: 5px;
-}
-
-.chat-input {
-  display: flex;
-  margin-top: 10px;
-}
-
-.chat-input input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  margin-right: 10px;
-}
-
-.chat-input button {
-  padding: 10px 20px;
-  background-color: #E67E22; /* Color naranja */
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.chat-input button:hover {
-  background-color: #D35400; /* Un tono más oscuro para el hover */
 }
 </style>
