@@ -64,22 +64,34 @@
         </div>
 
         <div class="justify-content-center d-flex align-items-center">
-            <!-- Comprobamos si la liga está completa -->
+            <!-- Mensaje de advertencia para liga completa -->
             <div v-if="isLligaCompleta" class="alert alert-warning text-center mb-4">
                 Aquesta lliga ja està completa. No es poden acceptar més inscripcions.
             </div>
 
-            <form v-if="!lliga.usuario_inscrito && compatibilidadProp && compatibilidadProp.compatible && !isLligaCompleta"
+            <!-- Mensaje de advertencia para usuario ya inscrito en otra liga -->
+            <div v-if="lliga.ya_en_otra_liga" class="alert alert-warning text-center mb-4">
+                Ja estàs inscrit en una altra lliga. No pots participar en múltiples lligues simultàniament.
+            </div>
+
+            <!-- Botón de inscripción si se cumplen todas las condiciones -->
+            <form v-if="!lliga.usuario_inscrito && !lliga.ya_en_otra_liga && compatibilidadProp && compatibilidadProp.compatible && !isLligaCompleta"
                   @submit.prevent="submitForm">
                 <button type="submit" class="btn btn-inscriuret">Inscriure'm</button>
             </form>
 
-            <button v-else-if="!lliga.usuario_inscrito && ((compatibilidadProp && !compatibilidadProp.compatible) || isLligaCompleta)"
+            <!-- Botón deshabilitado con mensaje según la razón -->
+            <button v-else-if="!lliga.usuario_inscrito && (lliga.ya_en_otra_liga || (compatibilidadProp && !compatibilidadProp.compatible) || isLligaCompleta)"
                    class="btn btn-inscriuret-disabled"
                    disabled>
-                {{ isLligaCompleta ? 'Lliga completa' : 'No es pot inscriure' }}
+                {{
+                   isLligaCompleta ? 'Lliga completa' :
+                   lliga.ya_en_otra_liga ? 'Ja estàs en una altra lliga' :
+                   'No es pot inscriure'
+                }}
             </button>
 
+            <!-- Mensaje si ya está inscrito en esta liga -->
             <p v-else-if="lliga.usuario_inscrito" class="ya-inscrito">Ja estàs inscrit a aquesta lliga</p>
         </div>
     </div>
@@ -127,10 +139,18 @@
                     return;
                 }
 
+                // Verificar si ya está en otra liga
+                if (this.lliga.ya_en_otra_liga) {
+                    alert("Ja estàs inscrit en una altra lliga. No pots participar en múltiples lligues simultàniament.");
+                    return;
+                }
+
                 // Usar axios para enviar el formulario con CSRF token
                 axios.post(`lligues/${this.id}/inscribirse`, {}, {
                     headers: {
-                        'X-CSRF-TOKEN': this.getCsrfToken()
+                        'X-CSRF-TOKEN': this.getCsrfToken(),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
                     }
                 })
                 .then(response => {
@@ -138,11 +158,19 @@
                     // Recargar los datos de la liga después de inscribirse
                     this.fetchLliga();
                     // Mensaje opcional de éxito
-                    alert("T'has inscrit correctament a la lliga!");
+                    if (response.data && response.data.success) {
+                        alert(response.data.message || "T'has inscrit correctament a la lliga!");
+                    }
                 })
                 .catch(error => {
                     console.error("Error en la inscripción:", error);
-                    alert("Hi ha hagut un error en la inscripció. Torna a intentar-ho més tard.");
+                    let mensaje = "Hi ha hagut un error en la inscripció. Torna a intentar-ho més tard.";
+
+                    if (error.response && error.response.data && error.response.data.message) {
+                        mensaje = error.response.data.message;
+                    }
+
+                    alert(mensaje);
                 });
             }
         }

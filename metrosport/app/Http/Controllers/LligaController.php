@@ -50,17 +50,25 @@ class LligaController extends Controller
 
             // Añadir información de si el usuario ya está inscrito
             $usuarioInscrito = false;
+            $yaEnOtraLiga = false;
 
             if (auth()->check()) {
                 $usuarioId = auth()->user()->id_usuari;
 
                 // Verificar si el usuario ya tiene un equipo en esta liga
                 $usuarioInscrito = $lliga->equips()->where('usuari_id_usuari', $usuarioId)->exists();
+
+                // Verificar si el usuario ya está en alguna otra liga
+                $equipo = Equip::where('usuari_id_usuari', $usuarioId)->first();
+                if ($equipo && $equipo->lliga_id_lliga && $equipo->lliga_id_lliga != $id) {
+                    $yaEnOtraLiga = true;
+                }
             }
 
             // Añadir la información al resultado
             $result = $lliga->toArray();
             $result['usuario_inscrito'] = $usuarioInscrito;
+            $result['ya_en_otra_liga'] = $yaEnOtraLiga;
 
             return response()->json($result);
         } catch (\Exception $e) {
@@ -630,6 +638,9 @@ EOT;
             // Verificar que la liga existe
             $liga = Lliga::find($id);
             if (!$liga) {
+                if (request()->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Liga no encontrada'], 404);
+                }
                 return redirect()->back()->with('error', 'Liga no encontrada');
             }
 
@@ -638,18 +649,43 @@ EOT;
             $equipo = Equip::where('usuari_id_usuari', $usuarioId)->first();
 
             if (!$equipo) {
+                if (request()->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'No tienes un equipo creado'], 400);
+                }
                 return redirect()->back()->with('error', 'No tienes un equipo creado');
             }
 
-            // Verificar que no está inscrito ya
+            // Verificar que no está inscrito ya en esta liga
             $yaInscrito = $liga->equips()->where('usuari_id_usuari', $usuarioId)->exists();
             if ($yaInscrito) {
+                if (request()->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Ya estás inscrito en esta liga'], 400);
+                }
                 return redirect()->back()->with('error', 'Ya estás inscrito en esta liga');
+            }
+
+            // Verificar que no está inscrito en otra liga
+            if ($equipo->lliga_id_lliga && $equipo->lliga_id_lliga != $id) {
+                if (request()->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Ya estás inscrito en otra liga. No puedes participar en múltiples ligas simultáneamente.'], 400);
+                }
+                return redirect()->back()->with('error', 'Ya estás inscrito en otra liga. No puedes participar en múltiples ligas simultáneamente.');
+            }
+
+            // Verificar si la liga está completa
+            if ($liga->participants_actualment >= $liga->nro_equips_participants) {
+                if (request()->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Esta liga ya está completa. No se pueden aceptar más inscripciones.'], 400);
+                }
+                return redirect()->back()->with('error', 'Esta liga ya está completa. No se pueden aceptar más inscripciones.');
             }
 
             // Verificar compatibilidad
             $compatibilidad = $this->verificarCompatibilidadUnirse($id)->getData(true);
             if (!$compatibilidad['compatible']) {
+                if (request()->ajax()) {
+                    return response()->json(['success' => false, 'message' => $compatibilidad['mensaje']], 400);
+                }
                 return redirect()->back()->with('error', $compatibilidad['mensaje']);
             }
 
@@ -669,6 +705,13 @@ EOT;
                 'tipus_notificacio' => 2 // Tipo 2 para inscripción
             ]);
 
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => '¡Te has inscrito correctamente a la liga!',
+                    'lliga' => $liga
+                ]);
+            }
             return redirect()->back()->with('success', '¡Te has inscrito correctamente a la liga!');
         } catch (\Exception $e) {
             \Log::error('Error al inscribirse en liga', [
@@ -677,6 +720,12 @@ EOT;
                 'usuario_id' => auth()->user()->id_usuari
             ]);
 
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al inscribirse en la liga: ' . $e->getMessage()
+                ], 500);
+            }
             return redirect()->back()->with('error', 'Error al inscribirse en la liga');
         }
     }
