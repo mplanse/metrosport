@@ -61,9 +61,9 @@
         @yield('content')
     </div>
 
-    <div class="chat">
-        <a href="{{ route('chat.index') }}"><img src="{{ asset('assets/iconos_nav/chat.png') }}" alt="Chat"></a>
-    </div>
+
+    @yield('chat')
+
 
 </body>
 </html>

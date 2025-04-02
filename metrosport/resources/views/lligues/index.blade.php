@@ -1,4 +1,4 @@
-@extends('layouts.nav')
+@extends('layouts.chat')
 @section('title')
  · Lligues
 @endsection
