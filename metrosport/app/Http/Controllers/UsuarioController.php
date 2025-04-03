@@ -80,4 +80,32 @@ class UsuarioController extends Controller
         Auth::logout();
         return redirect('/');
     }
+
+    public function getDisponibilitat()
+    {
+        // Obtener los equipos con sus relaciones de días y horas
+        $equips = Equip::with('diaHoras')->get();
+
+        // Construir un array con los datos
+        $disponibilitat = [];
+        foreach ($equips as $equip) {
+            $horarios = [];
+            if ($equip->diaHoras) { // Verificar si la relación no es null
+                foreach ($equip->diaHoras as $diaHora) {
+                    $horarios[] = [
+                        'dia' => $diaHora->dia,
+                        'hora' => $diaHora->hora,
+                    ];
+                }
+            }
+
+            $disponibilitat[] = [
+                'equipo' => $equip->usuari_id_usuari,
+                'horarios' => $horarios,
+            ];
+        }
+
+        // Devolver los datos en formato JSON
+        return response()->json($disponibilitat);
+    }
 }

@@ -32,4 +32,5 @@ class DiaHoraController extends Controller
             return redirect()->back()->with('error', "Error al actualitzar l'horari. Intenta-ho de nou.");
         }
     }
+
 }
