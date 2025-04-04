@@ -183,6 +183,71 @@ class LligaController extends Controller
         return response()->json($result);
     }
 
+    public function disponibilitatIA($id)
+    {
+        try {
+            $disponibilitats = $this->getLligaDetallada($id)->getData(true);
+
+            // Convertir $disponibilitats a JSON
+            $disponibilitatsJson = json_encode($disponibilitats, JSON_PRETTY_PRINT);
+
+            $prompt = <<<EOT
+    A partir del següent JSON, genera un text en català amb la disponibilitat general dels equips. Cada entrada de disponibilitat és una combinació de dia (1 = dilluns, ..., 7 = diumenge) i hora (0 = 00:00h fins a 24 = 24:00h). Si una mateixa franja horària apareix en diversos equips, no la repeteixis.
+
+    Per cada dia, indica:
+
+    Franges contínues de disponibilitat en format: de HH:00h a HH:00h (per exemple, de 17:00h a 20:00h si hi ha disponibilitat a les 17, 18 i 19).
+
+    Hores soltes en format: a les HH:00h
+
+    Escriu totes les franges i hores disponibles per dia separades per comes, i posa “Dilluns:”, “Dimarts:”, etc. al principi de cada línia.
+
+    Ordena les hores dins de cada dia de manera ascendent.
+
+    Mostra només els dies que tenen disponibilitat.
+
+    El text ha de ser clar, en format pla i només text, sense afegir cap explicació.
+
+    Aquest és el JSON:
+    $disponibilitatsJson
+
+    EOT;
+
+            $messages = [
+                ["role" => "system", "content" => "Eres un asistente inteligente"],
+                ["role" => "user", "content" => $prompt]
+            ];
+
+            $apiKey = env('OPENROUTER_API_KEY');
+
+            $response = Http::withHeaders([
+                "Authorization" => "Bearer $apiKey",
+                "Content-Type" => "application/json",
+                "HTTP-Referer" => "https://metrosport.example.com"
+            ])->timeout(300)->post("https://openrouter.ai/api/v1/chat/completions", [
+                "model" => "mistralai/mistral-small-3.1-24b-instruct:free",
+                "messages" => $messages,
+                "max_tokens" => 20000,
+                "temperature" => 0.2
+            ]);
+
+            $json = $response->json();
+
+            if (!isset($json['choices']) || !isset($json['choices'][0]['message']['content'])) {
+                throw new \Exception("Error al generar la disponibilitat amb OpenRouter.");
+            }
+
+            $content = $json['choices'][0]['message']['content'];
+
+            // Devuelve el contenido como texto plano
+            return response($content, 200)->header('Content-Type', 'text/plain');
+        } catch (\Exception $e) {
+            \Log::error("Error en disponibilitatIA: " . $e->getMessage());
+            return response("Error al generar la disponibilitat. Torna a intentar-ho més tard.", 500)
+                ->header('Content-Type', 'text/plain');
+        }
+    }
+
     public function callOpenRouter($id)
     {
         $detailResponse = $this->getLligaDetallada($id)->getData(true);

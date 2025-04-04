@@ -13,7 +13,7 @@
     @endphp
 
     <lliga :id="{{ $id }}"
-           :compatibilidad-prop="{{ json_encode($compatibilidad ?? ['compatible' => false, 'mensaje' => 'Debes iniciar sesión para verificar compatibilidad']) }}">
+           :compatibilidad-prop="{{ json_encode($compatibilidad ?? ['compatible' => false]) }}">
     </lliga>
 </div>
 @endsection

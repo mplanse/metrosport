@@ -60,7 +60,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/chatMissatges', [ChatController::class, 'storeMissatge']);
 });
 
-Route::get('/disponibilitat', [UsuarioController::class, 'getDisponibilitat'])->name('disponibilitat');
 
 // Rutas de autenticación
 Route::get('/login', [UsuarioController::class, 'showLogin'])->name('login');

@@ -27,5 +27,6 @@ Route::get('/lliga/{id}/openrouter', [LligaController::class, 'callOpenRouter'])
 
 Route::get('/lligues/{id}/verificar-compatibilidad', [LligaController::class, 'verificarCompatibilidadUnirse'])->name('lligues.verificar-compatibilidad');
 
+Route::get('/lliga/{id}/disponibilitat-ia', [LligaController::class, 'disponibilitatIA'])->name('lliga.disponibilitat-ia');
 
 

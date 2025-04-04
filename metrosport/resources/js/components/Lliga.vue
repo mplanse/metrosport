@@ -6,7 +6,7 @@
             {{ compatibilidadProp.mensaje }}
         </div>
 
-        <h3 class="fw-bold title">{{ lliga.nom_lliga || 'Cargando...' }}</h3>
+        <h3 class="fw-bold title">{{ lliga.nom_lliga }}</h3>
         <div class="card" v-if="lliga.nom_lliga">
             <div class="row p-5">
                 <div class="col-md-6 div-imatge">
@@ -68,13 +68,11 @@
             </div>
         </div>
 
-        <h4 class="disponibilitat-text">Disponibilitat horaria</h4>
-        <div class="card mt-4 p-3" v-if="disponibilidadFiltrada.length > 0">
-            <div v-for="(horas, dia) in getDisponibilidadAgrupada(disponibilidadFiltrada)" :key="dia">
-                <p>
-                    <strong>{{ obtenerNombreDia(dia) }}:</strong> {{ horas.join(", ") }}
-                </p>
-            </div>
+        <h4 class="disponibilitat-text">Disponibilitat horària</h4>
+        <div class="card mt-4 p-3">
+            <p v-for="(line, index) in disponibilitat.split('\n')" :key="index">
+                {{ line }}
+            </p>
         </div>
 
         <div class="justify-content-center d-flex align-items-center">
@@ -116,8 +114,7 @@ export default {
     data() {
         return {
             lliga: {},
-            disponibilidad: [],
-            disponibilidadFiltrada: [] // Disponibilidad filtrada para los equipos inscritos
+            disponibilitat: "",
         };
     },
     computed: {
@@ -140,53 +137,14 @@ export default {
                 });
         },
         fetchDisponibilidad() {
-            axios.get('/disponibilitat')
+            axios.get(`api/lliga/${this.id}/disponibilitat-ia`)
                 .then(response => {
-                    this.disponibilidad = response.data;
-                    this.filtrarDisponibilidad(); // Filtrar la disponibilidad después de obtenerla
+                    console.log("Disponibilitat horària:", response.data); // Verifica el contenido aquí
+                    this.disponibilitat = response.data;
                 })
                 .catch(error => {
                     console.error("Error obteniendo la disponibilidad:", error);
                 });
-        },
-        filtrarDisponibilidad() {
-            // Filtrar la disponibilidad para que solo incluya los equipos inscritos
-            const equiposInscritosIds = this.lliga.equips.map(equip => equip.usuari_id_usuari);
-            this.disponibilidadFiltrada = this.disponibilidad.filter(equipo =>
-                equiposInscritosIds.includes(equipo.equipo)
-            );
-        },
-        getDisponibilidadAgrupada(disponibilidad) {
-            const disponibilidadAgrupada = {};
-
-            disponibilidad.forEach(equipo => {
-                equipo.horarios.forEach(horario => {
-                    const dia = parseInt(horario.dia);
-                    if (!disponibilidadAgrupada[dia]) {
-                        disponibilidadAgrupada[dia] = [];
-                    }
-                    disponibilidadAgrupada[dia].push(horario.hora);
-                });
-            });
-
-            // Ordenar por día de la semana y eliminar duplicados de horas
-            Object.keys(disponibilidadAgrupada).forEach(dia => {
-                disponibilidadAgrupada[dia] = [...new Set(disponibilidadAgrupada[dia])].sort();
-            });
-
-            return disponibilidadAgrupada;
-        },
-        obtenerNombreDia(numero) {
-            const diasSemana = {
-                1: "Lunes",
-                2: "Martes",
-                3: "Miércoles",
-                4: "Jueves",
-                5: "Viernes",
-                6: "Sábado",
-                7: "Domingo"
-            };
-            return diasSemana[numero] || "Día desconocido";
         },
         getCsrfToken() {
             // Obtener el token CSRF de la meta tag
@@ -242,6 +200,10 @@ export default {
 /* Los estilos se mantienen igual */
 .equips-text {
     margin-bottom: 30px;
+}
+
+.disponibilitat-text{
+    margin-top: 50px;
 }
 
 .full-width {
