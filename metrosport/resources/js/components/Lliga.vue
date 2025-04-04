@@ -70,9 +70,17 @@
 
         <h4 class="disponibilitat-text">Disponibilitat horària</h4>
         <div class="card mt-4 p-3">
-            <p v-for="(line, index) in disponibilitat.split('\n')" :key="index">
-                {{ line }}
-            </p>
+            <!-- Mostrar disponibilidad si está disponible y es una cadena -->
+            <div v-if="typeof disponibilitat === 'string' && disponibilitat.length > 0">
+                <div v-for="(line, index) in disponibilitat.split('\n')" :key="index">
+                    {{ line }}
+                </div>
+            </div>
+
+            <!-- Mostrar mensaje de cargando si no hay disponibilidad -->
+            <div v-else>
+                Cargando disponibilitat horària...
+            </div>
         </div>
 
         <div class="justify-content-center d-flex align-items-center">
@@ -114,7 +122,7 @@ export default {
     data() {
         return {
             lliga: {},
-            disponibilitat: "",
+            disponibilitat: "", // Inicializado como cadena vacía
         };
     },
     computed: {
@@ -200,10 +208,6 @@ export default {
 /* Los estilos se mantienen igual */
 .equips-text {
     margin-bottom: 30px;
-}
-
-.disponibilitat-text{
-    margin-top: 50px;
 }
 
 .full-width {

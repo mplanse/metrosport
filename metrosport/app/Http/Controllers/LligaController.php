@@ -192,26 +192,26 @@ class LligaController extends Controller
             $disponibilitatsJson = json_encode($disponibilitats, JSON_PRETTY_PRINT);
 
             $prompt = <<<EOT
-    A partir del següent JSON, genera un text en català amb la disponibilitat general dels equips. Cada entrada de disponibilitat és una combinació de dia (1 = dilluns, ..., 7 = diumenge) i hora (0 = 00:00h fins a 24 = 24:00h). Si una mateixa franja horària apareix en diversos equips, no la repeteixis.
+A partir del següent JSON, genera un text en català amb la disponibilitat general dels equips. Cada entrada de disponibilitat és una combinació de dia (1 = dilluns, ..., 7 = diumenge) i hora (0 = 00:00h fins a 24 = 24:00h). Si una mateixa franja horària apareix en diversos equips, no la repeteixis.
 
-    Per cada dia, indica:
+Per cada dia, indica:
 
-    Franges contínues de disponibilitat en format: de HH:00h a HH:00h (per exemple, de 17:00h a 20:00h si hi ha disponibilitat a les 17, 18 i 19).
+Franges contínues de disponibilitat en format: de HH:00h a HH:00h (per exemple, de 17:00h a 20:00h si hi ha disponibilitat a les 17, 18 i 19).
 
-    Hores soltes en format: a les HH:00h
+Hores soltes en format: a les HH:00h
 
-    Escriu totes les franges i hores disponibles per dia separades per comes, i posa “Dilluns:”, “Dimarts:”, etc. al principi de cada línia.
+Escriu totes les franges i hores disponibles per dia separades per comes, i posa “Dilluns:”, “Dimarts:”, etc. al principi de cada línia.
 
-    Ordena les hores dins de cada dia de manera ascendent.
+Ordena les hores dins de cada dia de manera ascendent.
 
-    Mostra només els dies que tenen disponibilitat.
+Mostra només els dies que tenen disponibilitat.
 
-    El text ha de ser clar, en format pla i només text, sense afegir cap explicació.
+El text ha de ser clar, en format pla i només text, sense afegir cap explicació.
 
-    Aquest és el JSON:
-    $disponibilitatsJson
+Aquest és el JSON:
+$disponibilitatsJson
 
-    EOT;
+EOT;
 
             $messages = [
                 ["role" => "system", "content" => "Eres un asistente inteligente"],
