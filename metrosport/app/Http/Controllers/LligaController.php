@@ -30,55 +30,44 @@ class LligaController extends Controller
     public function getLligaInfo($id)
     {
         try {
-            // Modificamos para evitar cargar relaciones que puedan causar problemas
-            $lliga = Lliga::with([
-                'equips.ubicacioCamp'
-            ])->find($id);
-
-            // Cargamos los partidos de forma separada con eager loading adecuado
-            if ($lliga) {
-                $partits = Partit::with(['ubicacio', 'estat', 'diaHora'])
-                    ->where('lliga_id_lliga', $id)
-                    ->get();
-
-                $lliga->setAttribute('partits', $partits);
-            }
+            $lliga = Lliga::with(['equips.ubicacioCamp'])->find($id);
 
             if (!$lliga) {
                 return response()->json(['error' => 'Lliga no trobada'], 404);
             }
 
-            // Añadir información de si el usuario ya está inscrito
             $usuarioInscrito = false;
             $yaEnOtraLiga = false;
+            $esMiLliga = false;
 
             if (auth()->check()) {
                 $usuarioId = auth()->user()->id_usuari;
 
-                // Verificar si el usuario ya tiene un equipo en esta liga
+                // Verificar si el usuario ya está inscrito en esta liga
                 $usuarioInscrito = $lliga->equips()->where('usuari_id_usuari', $usuarioId)->exists();
 
-                // Verificar si el usuario ya está en alguna otra liga
+                // Verificar si el usuario ya está inscrito en otra liga
                 $equipo = Equip::where('usuari_id_usuari', $usuarioId)->first();
                 if ($equipo && $equipo->lliga_id_lliga && $equipo->lliga_id_lliga != $id) {
                     $yaEnOtraLiga = true;
                 }
+
+                // Verificar si la liga pertenece al usuario actual
+                $esMiLliga = $lliga->equips()->where('usuari_id_usuari', $usuarioId)->exists();
             }
 
-            // Añadir la información al resultado
             $result = $lliga->toArray();
             $result['usuario_inscrito'] = $usuarioInscrito;
-            $result['ya_en_otra_liga'] = $yaEnOtraLiga;
+            $result['ya_en_otra_lliga'] = $yaEnOtraLiga;
+            $result['es_mi_lliga'] = $esMiLliga;
 
             return response()->json($result);
         } catch (\Exception $e) {
             \Log::error('Error en getLligaInfo: ' . $e->getMessage(), [
-                'id' => $id,
                 'exception' => $e
             ]);
 
             return response()->json([
-                'error' => 'Error al cargar la información de la liga',
                 'message' => $e->getMessage()
             ], 500);
         }
@@ -759,7 +748,7 @@ EOT;
             $equipo->lliga_id_lliga = $id;
             $equipo->save();
 
-            // Incrementar contador de participantes
+            // Incrementar contador de participants
             $liga->participants_actualment = ($liga->participants_actualment ?? 0) + 1;
             $liga->save(); // Guardar el cambio en la base de datos
 

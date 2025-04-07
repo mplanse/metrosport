@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Mensaje de compatibilidad -->
-        <div v-if="compatibilidadProp" class="alert"
+        <div v-if="compatibilidadProp && !lliga.es_mi_lliga" class="alert"
             :class="compatibilidadProp.compatible ? 'alert-success' : 'alert-warning'">
             {{ compatibilidadProp.mensaje }}
         </div>
@@ -68,45 +68,48 @@
             </div>
         </div>
 
-        <h4 class="disponibilitat-text  mt-4">Disponibilitat horària</h4>
-        <div class="card disponibilitat-card p-3">
-            <div v-if="typeof disponibilitat === 'string' && disponibilitat.length > 0">
-                <div v-for="(line, index) in disponibilitat.split('\n')" :key="index">
-                    {{ line }}
+        <!-- Ocultar botones y mensajes si es mi liga -->
+        <div v-if="!lliga.es_mi_lliga">
+            <h4 class="disponibilitat-text mt-4">Disponibilitat horària</h4>
+            <div class="card disponibilitat-card p-3">
+                <div v-if="typeof disponibilitat === 'string' && disponibilitat.length > 0">
+                    <div v-for="(line, index) in disponibilitat.split('\n')" :key="index">
+                        {{ line }}
+                    </div>
+                </div>
+
+                <div v-else>
+                    Carregant disponibilitat horària...
                 </div>
             </div>
 
-            <div v-else>
-                Carregant disponibilitat horària...
+            <div class="justify-content-center d-flex align-items-center">
+                <div v-if="isLligaCompleta" class="alert alert-warning text-center mb-4">
+                    Aquesta lliga ja està completa. No es poden inscriure més equips.
+                </div>
+
+                <div v-if="lliga.ya_en_otra_liga" class="alert alert-warning text-center mb-4">
+                    Ja estàs inscrit en una altra lliga. No pots participar en múltiples lligues simultàniament.
+                </div>
+
+                <form
+                    v-if="!lliga.usuario_inscrito && !lliga.ya_en_otra_liga && compatibilidadProp && compatibilidadProp.compatible && !isLligaCompleta"
+                    @submit.prevent="submitForm">
+                    <button type="submit" class="btn btn-inscriuret">Inscriure'm</button>
+                </form>
+
+                <button
+                    v-else-if="!lliga.usuario_inscrito && (lliga.ya_en_otra_liga || (compatibilidadProp && !compatibilidadProp.compatible) || isLligaCompleta)"
+                    class="btn btn-inscriuret-disabled" disabled>
+                    {{
+                        isLligaCompleta ? 'Lliga completa' :
+                            lliga.ya_en_otra_liga ? 'Ja estàs en una altra lliga' :
+                                'No et pots inscriure'
+                    }}
+                </button>
+
+                <p v-else-if="lliga.usuario_inscrito" class="ya-inscrito">Ja estàs inscrit en aquesta lliga</p>
             </div>
-        </div>
-
-        <div class="justify-content-center d-flex align-items-center">
-            <div v-if="isLligaCompleta" class="alert alert-warning text-center mb-4">
-                Aquesta lliga ja està completa. No es poden inscriure més equips.
-            </div>
-
-            <div v-if="lliga.ya_en_otra_liga" class="alert alert-warning text-center mb-4">
-                Ja estàs inscrit en una altra lliga. No pots participar en múltiples lligues simultàniament.
-            </div>
-
-            <form
-                v-if="!lliga.usuario_inscrito && !lliga.ya_en_otra_liga && compatibilidadProp && compatibilidadProp.compatible && !isLligaCompleta"
-                @submit.prevent="submitForm">
-                <button type="submit" class="btn btn-inscriuret">Inscriure'm</button>
-            </form>
-
-            <button
-                v-else-if="!lliga.usuario_inscrito && (lliga.ya_en_otra_liga || (compatibilidadProp && !compatibilidadProp.compatible) || isLligaCompleta)"
-                class="btn btn-inscriuret-disabled" disabled>
-                {{
-                    isLligaCompleta ? 'Lliga completa' :
-                        lliga.ya_en_otra_liga ? 'Ja estàs en una altra lliga' :
-                            'No et pots inscriure'
-                }}
-            </button>
-
-            <p v-else-if="lliga.usuario_inscrito" class="ya-inscrito">Ja estàs inscrit en aquesta lliga</p>
         </div>
     </div>
 </template>

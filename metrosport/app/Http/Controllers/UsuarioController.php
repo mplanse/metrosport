@@ -59,7 +59,7 @@ class UsuarioController extends Controller
             'nom_equip' => '0',
             'usuari_id_usuari' => $usuario->id_usuari,
             'url_imagen' => null,
-            'lliga_id_lliga' => 1, // O el ID de la liga por defect
+            'lliga_id_lliga' => 0, // O el ID de la liga por defect
             'puntuacio_lliga' => 0,
             'puntuacio_equip' => 0,
         ]);
