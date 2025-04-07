@@ -16,7 +16,6 @@ class UsuarioController extends Controller
         return view('auth.login');
     }
 
-    // Procesar el login
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -24,15 +23,12 @@ class UsuarioController extends Controller
             'contrasenya' => 'required|string',
         ]);
 
-        // Buscar usuario por nombre de usuario
         $usuario = Usuari::where('nom_usuari', $credentials['nom_usuari'])->first();
 
-        // Validar credenciales
         if (!$usuario || !Hash::check($credentials['contrasenya'], $usuario->contrasenya)) {
             return back()->withErrors(['error' => 'Usuario o contraseña incorrectos']);
         }
 
-        // Autenticar usuario
         Auth::login($usuario);
         return redirect()->route('lligues.index');
     }
@@ -43,7 +39,7 @@ class UsuarioController extends Controller
         return view('auth.register');
     }
 
-    // Procesar el registro
+
     public function register1(Request $request)
     {
         $request->validate([
@@ -52,18 +48,18 @@ class UsuarioController extends Controller
             'contrasenya' => 'required|string|min:6|confirmed',
         ]);
 
-        // Crear usuario con contraseña encriptada
+
         $usuario = Usuari::create([
             'nom_usuari' => $request->nom_usuari,
             'mail' => $request->mail,
-            'contrasenya' => Hash::make($request->contrasenya), // Encriptar la contraseña
+            'contrasenya' => Hash::make($request->contrasenya),
         ]);
 
         Equip::create([
             'nom_equip' => '0',
             'usuari_id_usuari' => $usuario->id_usuari,
             'url_imagen' => null,
-            'lliga_id_lliga' => 1, // O el ID de la liga por defecto que tú determines
+            'lliga_id_lliga' => 1, // O el ID de la liga por defect
             'puntuacio_lliga' => 0,
             'puntuacio_equip' => 0,
         ]);

@@ -3,18 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable; // Cambiar Model por Authenticatable
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Usuari extends Authenticatable
 {
-    use HasFactory, Notifiable; // Agregar Notifiable para manejar notificaciones si lo deseas
+    use HasFactory;
 
     protected $table = 'usuari';
     protected $primaryKey = 'id_usuari';
     public $timestamps = false;
     protected $fillable = ['nom_usuari', 'mail', 'contrasenya'];
-    protected $hidden = ['contrasenya']; // Oculta la contraseña en respuestas JSON
+    protected $hidden = ['contrasenya']; 
 
     public function equips()
     {
