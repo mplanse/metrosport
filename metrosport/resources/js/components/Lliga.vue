@@ -11,7 +11,6 @@
             {{ mensaje }}
         </div>
 
-
         <h3 class="fw-bold title">{{ lliga.nom_lliga }}</h3>
         <div class="card" v-if="lliga.nom_lliga">
             <div class="row p-5">
@@ -191,7 +190,7 @@ export default {
                         this.mensaje = response.data.message || "T'has inscrit correctament a la lliga!";
                         this.tipoMensaje = "success";
 
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        window.scrollTo({ top: 0, behavior: 'smooth' });º
 
                         setTimeout(() => {
                             this.mensaje = "";
