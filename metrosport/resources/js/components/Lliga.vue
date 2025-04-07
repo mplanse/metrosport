@@ -68,18 +68,16 @@
             </div>
         </div>
 
-        <h4 class="disponibilitat-text">Disponibilitat horària</h4>
-        <div class="card mt-4 p-3">
-            <!-- Mostrar disponibilidad si está disponible y es una cadena -->
+        <h4 class="disponibilitat-text  mt-4">Disponibilitat horària</h4>
+        <div class="card disponibilitat-card p-3">
             <div v-if="typeof disponibilitat === 'string' && disponibilitat.length > 0">
                 <div v-for="(line, index) in disponibilitat.split('\n')" :key="index">
                     {{ line }}
                 </div>
             </div>
 
-            <!-- Mostrar mensaje de cargando si no hay disponibilidad -->
             <div v-else>
-                Cargando disponibilitat horària...
+                Carregant disponibilitat horària...
             </div>
         </div>
 
@@ -147,7 +145,6 @@ export default {
         fetchDisponibilidad() {
             axios.get(`api/lliga/${this.id}/disponibilitat-ia`)
                 .then(response => {
-                    console.log("Disponibilitat horària:", response.data); // Verifica el contenido aquí
                     this.disponibilitat = response.data;
                 })
                 .catch(error => {
@@ -270,6 +267,10 @@ p {
     margin: 0;
 }
 
+.disponibilitat-card{
+    font-size: 18px;
+}
+
 .btn-inscriuret {
     background-color: #E67E22;
     border: 1px solid black;
@@ -323,6 +324,10 @@ p {
         padding-left: 30px;
         padding-top: 15px;
     }
+    .disponibilitat-card{
+        font-size: 18px;
+        margin-left: 30px;
+    }
 }
 
 
@@ -365,6 +370,10 @@ p {
 
     .equips-text {
         margin-bottom: 10px;
+    }
+    .disponibilitat-card{
+        font-size: 17px;
+        margin-left: 30px;
     }
 }
 
@@ -417,6 +426,10 @@ p {
 
     .info-lliga-row .col-12 {
         width: 100%;
+    }
+    .disponibilitat-card{
+        font-size: 13px;
+        margin-left: 30px;
     }
 }
 </style>

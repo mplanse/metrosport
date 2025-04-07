@@ -3,7 +3,7 @@
         <div id="app" class="container mt-4">
             <p class="fs-5">Creiem que aquestes lligues podrien interessar-te:</p>
             <div class="row">
-                <div class="col-lg-4 col-md-6 col-sm-12 mb-4" v-for="lliga in lligues" :key="lliga.id_lliga">
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-4" v-for="lliga in lliguesFiltrades" :key="lliga.id_lliga">
                     <a class="a-lligues" :href="`lligues/${lliga.id_lliga}`">
                         <div class="card h-100 shadow-sm border-0">
                             <img :src="`storage/${lliga.url_imagen}`" class="card-img-top img-fixed" alt="Lliga">
@@ -40,6 +40,11 @@ export default {
                 .catch(error => {
                     console.error("Error obteniendo las ligas:", error);
                 });
+        }
+    },
+    computed: {
+        lliguesFiltrades() {
+            return this.lligues.filter(lliga => lliga.id_lliga !== 0);
         }
     }
 }
