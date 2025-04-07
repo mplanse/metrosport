@@ -6,6 +6,12 @@
             {{ compatibilidadProp.mensaje }}
         </div>
 
+        <div v-if="mensaje" :class="['alert', tipoMensaje === 'success' ? 'alert-success' : 'alert-danger']"
+            class="mt-3">
+            {{ mensaje }}
+        </div>
+
+
         <h3 class="fw-bold title">{{ lliga.nom_lliga }}</h3>
         <div class="card" v-if="lliga.nom_lliga">
             <div class="row p-5">
@@ -123,9 +129,12 @@ export default {
     data() {
         return {
             lliga: {},
-            disponibilitat: "", // Inicializado como cadena vacía
+            disponibilitat: "",
+            mensaje: "",       // Texto del mensaje
+            tipoMensaje: "",   // 'success' o 'error'
         };
     },
+
     computed: {
         isLligaCompleta() {
             return this.lliga.participants_actualment >= this.lliga.nro_equips_participants;
@@ -148,6 +157,7 @@ export default {
         fetchDisponibilidad() {
             axios.get(`api/lliga/${this.id}/disponibilitat-ia`)
                 .then(response => {
+                    console.log("Disponibilitat horària:", response.data); // Verifica el contenido aquí
                     this.disponibilitat = response.data;
                 })
                 .catch(error => {
@@ -159,19 +169,18 @@ export default {
             return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         },
         submitForm() {
-            // Verificamos nuevamente si la liga está completa
             if (this.isLligaCompleta) {
-                alert("Aquesta lliga ja està completa. No es poden acceptar més inscripcions.");
+                this.mensaje = "Aquesta lliga ja està completa. No es poden acceptar més inscripcions.";
+                this.tipoMensaje = "error";
                 return;
             }
 
-            // Verificar si ya está en otra liga
             if (this.lliga.ya_en_otra_liga) {
-                alert("Ja estàs inscrit en una altra lliga. No pots participar en múltiples lligues simultàniament.");
+                this.mensaje = "Ja estàs inscrit en una altra lliga. No pots participar en múltiples lligues simultàniament.";
+                this.tipoMensaje = "error";
                 return;
             }
 
-            // Usar axios para enviar el formulario con CSRF token
             axios.post(`lligues/${this.id}/inscribirse`, {}, {
                 headers: {
                     'X-CSRF-TOKEN': this.getCsrfToken(),
@@ -180,24 +189,36 @@ export default {
                 }
             })
                 .then(response => {
-                    console.log("Respuesta de inscripción:", response.data);
-                    // Recargar los datos de la liga después de inscribirse
                     this.fetchLliga();
-                    // Mensaje opcional de éxito
                     if (response.data && response.data.success) {
-                        alert(response.data.message || "T'has inscrit correctament a la lliga!");
+                        this.mensaje = response.data.message || "T'has inscrit correctament a la lliga!";
+                        this.tipoMensaje = "success";
+
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                        setTimeout(() => {
+                            this.mensaje = "";
+                            this.tipoMensaje = "";
+                        }, 5000);
                     }
+
                 })
                 .catch(error => {
-                    console.error("Error en la inscripción:", error);
                     let mensaje = "Hi ha hagut un error en la inscripció. Torna a intentar-ho més tard.";
-
-                    if (error.response && error.response.data && error.response.data.message) {
+                    if (error.response?.data?.message) {
                         mensaje = error.response.data.message;
                     }
+                    this.mensaje = mensaje;
+                    this.tipoMensaje = "error";
 
-                    alert(mensaje);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                    setTimeout(() => {
+                        this.mensaje = "";
+                        this.tipoMensaje = "";
+                    }, 5000);
                 });
+
         }
     }
 };
@@ -270,7 +291,7 @@ p {
     margin: 0;
 }
 
-.disponibilitat-card{
+.disponibilitat-card {
     font-size: 18px;
 }
 
@@ -327,7 +348,8 @@ p {
         padding-left: 30px;
         padding-top: 15px;
     }
-    .disponibilitat-card{
+
+    .disponibilitat-card {
         font-size: 18px;
         margin-left: 30px;
     }
@@ -374,7 +396,8 @@ p {
     .equips-text {
         margin-bottom: 10px;
     }
-    .disponibilitat-card{
+
+    .disponibilitat-card {
         font-size: 17px;
         margin-left: 30px;
     }
@@ -430,7 +453,8 @@ p {
     .info-lliga-row .col-12 {
         width: 100%;
     }
-    .disponibilitat-card{
+
+    .disponibilitat-card {
         font-size: 13px;
         margin-left: 30px;
     }
