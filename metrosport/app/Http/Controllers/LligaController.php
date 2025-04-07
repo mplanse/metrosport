@@ -761,7 +761,7 @@ EOT;
 
             // Incrementar contador de participantes
             $liga->participants_actualment = ($liga->participants_actualment ?? 0) + 1;
-            $liga->save();
+            $liga->save(); // Guardar el cambio en la base de datos
 
             // Crear notificación
             Notificacions::create([
@@ -771,6 +771,7 @@ EOT;
                 'tipus_notificacio' => 2 // Tipo 2 para inscripción
             ]);
 
+            // Responder con éxito si es una solicitud AJAX
             if (request()->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -778,6 +779,8 @@ EOT;
                     'lliga' => $liga
                 ]);
             }
+
+            // Redirigir con éxito si no es una solicitud AJAX
             return redirect()->back()->with('success', '¡Te has inscrito correctamente a la liga!');
         } catch (\Exception $e) {
             \Log::error('Error al inscribirse en liga', [
@@ -786,12 +789,15 @@ EOT;
                 'usuario_id' => auth()->user()->id_usuari
             ]);
 
+            // Responder con error si es una solicitud AJAX
             if (request()->ajax()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Error al inscribirse en la liga: ' . $e->getMessage()
                 ], 500);
             }
+
+            // Redirigir con error si no es una solicitud AJAX
             return redirect()->back()->with('error', 'Error al inscribirse en la liga');
         }
     }
