@@ -771,6 +771,23 @@ EOT;
                 'tipus_notificacio' => 2 // Tipo 2 para inscripción
             ]);
 
+            if ($liga->participants_actualment == $liga->nro_equips_participants) {
+                // Obtener todos los equipos inscritos en la liga
+                $equipos = Equip::where('lliga_id_lliga', $id)->get();
+
+                // Enviar notificación a todos los equipos
+                foreach ($equipos as $equipoInscrito) {
+                    Notificacions::create([
+                        'missatge_notificacio' => "¡Todos los equipos se han inscrito en la liga: {$liga->nom_lliga}! Prepárate para los partidos.",
+                        'equip_usuari_id_usuari' => $equipoInscrito->usuari_id_usuari,
+                        'timestamp' => now(),
+                        'tipus_notificacio' => 3 // Tipo 3 para notificación de liga completa
+                    ]);
+                }
+            }
+
+
+
             // Responder con éxito si es una solicitud AJAX
             if (request()->ajax()) {
                 return response()->json([
