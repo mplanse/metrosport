@@ -1,6 +1,6 @@
 <template>
   <div class="chat-container">
-    <h1>Chat</h1>
+    <h1>Chat: {{ lliga.nom_lliga }}</h1>
     <div class="chat-box" ref="chatBox">
       <template v-for="(missatge, index) in missatges" :key="missatge.id_missatge">
         <!-- Mostrar el día si es diferente al del mensaje anterior -->
@@ -46,6 +46,7 @@ export default {
     return {
       missatges: [],
       userId: null,
+      lliga: {},
       newMessage: "",
     };
   },
@@ -59,8 +60,9 @@ export default {
         .then((response) => {
           this.missatges = response.data.missatges;
           this.userId = response.data.userId;
+          this.lliga = response.data.lliga;
           this.$nextTick(() => {
-            this.scrollToBottom(); // Desplazar hacia abajo después de actualizar los mensajes
+            this.scrollToBottom();
           });
         })
         .catch((error) => {
