@@ -332,6 +332,30 @@ bootstrap predeterminats */
     height: 35px;
 }
 
+.notification-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border: 1px solid #E67E22;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    padding: 1rem 1.5rem;
+    background-color: #fff;
+}
+
+.notification-content p {
+    margin-bottom: 0.5rem;
+    word-wrap: break-word;
+}
+
+.notification-footer {
+    text-align: right;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+
 
 @media (max-width: 768px) {
 
@@ -342,6 +366,15 @@ bootstrap predeterminats */
 
     #view-map, #edit-map{
         height: 400px;
+    }
+    .notification-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .notification-footer {
+        text-align: left;
+        margin-top: 0.5rem;
     }
 }
 
@@ -368,6 +401,15 @@ bootstrap predeterminats */
 
     #view-map, #edit-map{
         height: 300px;
+    }
+    .notification-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .notification-footer {
+        text-align: left;
+        margin-top: 0.5rem;
     }
 }
 
