@@ -88,33 +88,41 @@
                 </div>
             </div>
 
-            <div class="justify-content-center d-flex align-items-center">
-                <div v-if="isLligaCompleta" class="alert alert-warning text-center mb-4">
-                    Aquesta lliga ja està completa. No es poden inscriure més equips.
-                </div>
+            <div class="justify-content-center d-flex align-items-center flex-column text-center">
+    <!-- Mensaje de lliga completa -->
+    <div v-if="isLligaCompleta" class="alert alert-warning mb-3 w-100">
+        Aquesta lliga ja està completa. No es poden inscriure més equips.
+    </div>
 
-                <div v-if="lliga.ya_en_otra_liga" class="alert alert-warning text-center mb-4">
-                    Ja estàs inscrit en una altra lliga. No pots participar en múltiples lligues simultàniament.
-                </div>
+    <!-- Mensaje de ya en otra lliga -->
+    <div v-if="lliga.ya_en_otra_liga" class="alert alert-warning mb-3 w-100">
+        Ja estàs inscrit en una altra lliga. No pots participar en múltiples lligues simultàniament.
+    </div>
 
-                <form
-                    v-if="!lliga.usuario_inscrito && !lliga.ya_en_otra_liga && compatibilidadProp && compatibilidadProp.compatible && !isLligaCompleta"
-                    @submit.prevent="submitForm">
-                    <button type="submit" class="btn btn-inscriuret">Inscriure'm</button>
-                </form>
+    <!-- Botón de inscribirse -->
+    <form
+        v-if="!lliga.usuario_inscrito && !lliga.ya_en_otra_liga && compatibilidadProp && compatibilidadProp.compatible && !isLligaCompleta"
+        @submit.prevent="submitForm" class="w-100 d-flex justify-content-center">
+        <button type="submit" class="btn btn-inscriuret">Inscriure'm</button>
+    </form>
 
-                <button
-                    v-else-if="!lliga.usuario_inscrito && (lliga.ya_en_otra_liga || (compatibilidadProp && !compatibilidadProp.compatible) || isLligaCompleta)"
-                    class="btn btn-inscriuret-disabled" disabled>
-                    {{
-                        isLligaCompleta ? 'Lliga completa' :
-                            lliga.ya_en_otra_liga ? 'Ja estàs en una altra lliga' :
-                                'No et pots inscriure'
-                    }}
-                </button>
+    <!-- Botón deshabilitado -->
+    <div
+        v-else-if="!lliga.usuario_inscrito && (lliga.ya_en_otra_liga || (compatibilidadProp && !compatibilidadProp.compatible) || isLligaCompleta)"
+        class="w-100 d-flex justify-content-center">
+        <button class="btn btn-inscriuret-disabled" disabled>
+            {{
+                isLligaCompleta ? 'Lliga completa' :
+                    lliga.ya_en_otra_liga ? 'Ja estàs en una altra lliga' :
+                        'No et pots inscriure'
+            }}
+        </button>
+    </div>
 
-                <p v-else-if="lliga.usuario_inscrito" class="ya-inscrito">Ja estàs inscrit en aquesta lliga</p>
-            </div>
+    <!-- Mensaje si ya está inscrito -->
+    <p v-else-if="lliga.usuario_inscrito" class="ya-inscrito mt-3">Ja estàs inscrit en aquesta lliga</p>
+</div>
+
         </div>
     </div>
 </template>
