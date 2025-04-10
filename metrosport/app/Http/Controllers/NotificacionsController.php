@@ -11,7 +11,10 @@ class NotificacionsController extends Controller
     public function index()
     {
         $userId = Auth::user()->id_usuari;
-        $notificacions = Notificacions::where('equip_usuari_id_usuari', $userId)->get();
+
+        $notificacions = Notificacions::where('equip_usuari_id_usuari', $userId)
+            ->orderBy('timestamp', 'desc')
+            ->get();
 
         return view('notificacions.index', compact('notificacions'));
     }

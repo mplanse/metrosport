@@ -89,39 +89,34 @@
             </div>
 
             <div class="justify-content-center d-flex align-items-center flex-column text-center">
-    <!-- Mensaje de lliga completa -->
-    <div v-if="isLligaCompleta" class="alert alert-warning mb-3 w-100">
-        Aquesta lliga ja està completa. No es poden inscriure més equips.
-    </div>
 
-    <!-- Mensaje de ya en otra lliga -->
-    <div v-if="lliga.ya_en_otra_liga" class="alert alert-warning mb-3 w-100">
-        Ja estàs inscrit en una altra lliga. No pots participar en múltiples lligues simultàniament.
-    </div>
+                <div v-if="isLligaCompleta" class="alert alert-warning mb-3 w-100">
+                    Aquesta lliga ja està completa. No es poden inscriure més equips.
+                </div>
 
-    <!-- Botón de inscribirse -->
-    <form
-        v-if="!lliga.usuario_inscrito && !lliga.ya_en_otra_liga && compatibilidadProp && compatibilidadProp.compatible && !isLligaCompleta"
-        @submit.prevent="submitForm" class="w-100 d-flex justify-content-center">
-        <button type="submit" class="btn btn-inscriuret">Inscriure'm</button>
-    </form>
+                <div v-if="lliga.ya_en_otra_liga" class="alert alert-warning mb-3 w-100">
+                    Ja estàs inscrit en una altra lliga. No pots participar en múltiples lligues simultàniament.
+                </div>
 
-    <!-- Botón deshabilitado -->
-    <div
-        v-else-if="!lliga.usuario_inscrito && (lliga.ya_en_otra_liga || (compatibilidadProp && !compatibilidadProp.compatible) || isLligaCompleta)"
-        class="w-100 d-flex justify-content-center">
-        <button class="btn btn-inscriuret-disabled" disabled>
-            {{
-                isLligaCompleta ? 'Lliga completa' :
-                    lliga.ya_en_otra_liga ? 'Ja estàs en una altra lliga' :
-                        'No et pots inscriure'
-            }}
-        </button>
-    </div>
+                <form
+                    v-if="!lliga.usuario_inscrito && !lliga.ya_en_otra_liga && compatibilidadProp && compatibilidadProp.compatible && !isLligaCompleta"
+                    @submit.prevent="submitForm" class="w-100 d-flex justify-content-center">
+                    <button type="submit" class="btn btn-inscriuret">Inscriure'm</button>
+                </form>
 
-    <!-- Mensaje si ya está inscrito -->
-    <p v-else-if="lliga.usuario_inscrito" class="ya-inscrito mt-3">Ja estàs inscrit en aquesta lliga</p>
-</div>
+                <div v-else-if="!lliga.usuario_inscrito && (lliga.ya_en_otra_liga || (compatibilidadProp && !compatibilidadProp.compatible) || isLligaCompleta)"
+                    class="w-100 d-flex justify-content-center">
+                    <button class="btn btn-inscriuret-disabled" disabled>
+                        {{
+                            isLligaCompleta ? 'Lliga completa' :
+                                lliga.ya_en_otra_liga ? 'Ja estàs en una altra lliga' :
+                                    'No et pots inscriure'
+                        }}
+                    </button>
+                </div>
+
+                <p v-else-if="lliga.usuario_inscrito" class="ya-inscrito mt-3">Ja estàs inscrit en aquesta lliga</p>
+            </div>
 
         </div>
     </div>
@@ -201,7 +196,7 @@ export default {
                         this.mensaje = response.data.message || "T'has inscrit correctament a la lliga!";
                         this.tipoMensaje = "success";
 
-                        window.scrollTo({ top: 0, behavior: 'smooth' });º
+                        window.scrollTo({ top: 0, behavior: 'smooth' }); º
 
                         setTimeout(() => {
                             this.mensaje = "";

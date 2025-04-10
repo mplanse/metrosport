@@ -206,7 +206,7 @@ Escriu totes les franges i hores disponibles per dia separades per comes, i posa
 
 Ordena les hores dins de cada dia de manera ascendent.
 
-Mostra només els dies que tenen disponibilitat.
+Mostra només els dies que tenen disponibilitat, sense cap error login a l'hora de formular el text, que mai es repeteixi cap hora i estiguin sempre ordenades.
 
 El text ha de ser clar, en format pla i només text, sense afegir cap explicació.
 
