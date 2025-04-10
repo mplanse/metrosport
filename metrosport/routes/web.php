@@ -58,6 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/lligues/{id}/inscribirse', [LligaController::class, 'inscribirEquipo'])->name('lligues.inscribirse');
     Route::get('/chatMissatges', [ChatController::class, 'getMissatges'])->name('missatges');
     Route::post('/chatMissatges', [ChatController::class, 'storeMissatge']);
+    Route::get('/lligues/{id}/classificacio', [LligaController::class, 'mostrarClassificacio'])->name('classificacio');
 });
 
 

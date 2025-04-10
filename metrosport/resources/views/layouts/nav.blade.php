@@ -30,7 +30,18 @@
                         <a class="nav-link {{ request()->routeIs('preguntes') ? 'active' : '' }}" href="{{ route('preguntes') }}">Tens dubtes?</a>
                     </li>
                     <li class="nav-item ms-4 me-4">
-                        <a class="nav-link {{ request()->routeIs('classificacio') ? 'active' : '' }}" href="#">Classificació</a>
+                        @php
+                            // Obtener el ID de la liga del equipo del usuario actual
+                            $ligaId = DB::table('equip')
+                                ->where('usuari_id_usuari', Auth::user()->id_usuari ?? null)
+                                ->value('lliga_id_lliga');
+                        @endphp
+
+                        @if($ligaId)
+                            <a class="nav-link {{ request()->routeIs('classificacio') ? 'active' : '' }}" href="{{ route('classificacio', ['id' => $ligaId]) }}">Classificació</a>
+                        @else
+                            <span class="nav-link text-muted" style="cursor: not-allowed;">Classificació (No inscrit)</span>
+                        @endif
                     </li>
                 </ul>
                 <div class="ms-auto nav-icons d-flex align-items-center">
@@ -61,9 +72,7 @@
         @yield('content')
     </div>
 
-
     @yield('chat')
-
 
 </body>
 </html>

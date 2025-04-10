@@ -183,6 +183,8 @@ class LligaController extends Controller
         return response()->json($result);
     }
 
+
+
     public function disponibilitatIA($id)
     {
         try {
@@ -252,7 +254,6 @@ EOT;
     {
         $detailResponse = $this->getLligaDetallada($id)->getData(true);
 
-        // Contar equipos para calcular jornadas requeridas
         $equipos = count($detailResponse['lliga']['equips'] ?? []);
         $totalPartidos = $equipos * ($equipos - 1); // ida y vuelta
         $jornadasNecesarias = ceil($totalPartidos / ($equipos / 2)); // 4 partidos por jornada
@@ -264,8 +265,8 @@ REQUISITOS CRÍTICOS:
 1. Cada equipo debe enfrentarse a todos los demás exactamente DOS veces (ida y vuelta): una como LOCAL y otra como VISITANTE.
 2. Solo se puede asignar un partido si AMBOS equipos están disponibles en ese día y hora.
 3. El campo de juego debe ser la UBICACIÓN del equipo local.
-4. Cada jornada debe tener exactamente ${equipos}/2 partidos (ej: 4 si hay 8 equipos).
-5. Debes generar EXACTAMENTE $jornadasNecesarias jornadas, enumeradas de 1 a $jornadasNecesarias.
+4. Cada jornada debe tener exactamente ${equipos}/2 partidos.
+5. Debes generar EXACTAMENTE $jornadasNecesarias jornadas.
 
 FORMATO ESTRICTO:
 {
@@ -273,39 +274,21 @@ FORMATO ESTRICTO:
     {
       "jornada": 1,
       "partidos": [
-        {
-          "equipo_local": "nombre_equipo",
-          "equipo_visitante": "nombre_equipo",
-          "dia": número_dia,
-          "hora": número_hora,
-          "ubicacion": "nombre_ubicacion"
-        }
+        { "local": "Equipo A", "visitante": "Equipo B", "dia": 1, "hora": 18 }
       ]
-    },
-    {
-      "jornada": 2,
-      "partidos": [...]
     }
   ]
 }
-
-IMPORTANTE:
-- Usa solo horarios en los que AMBOS equipos estén disponibles.
-- Distribuye de forma equitativa los equipos como local y visitante.
-- No incluyas texto ni explicación, solo el JSON estrictamente con ese formato.
 EOT;
 
         $messages = [
-            ["role" => "system", "content" => "Responde estrictamente en JSON. No incluyas ningún texto fuera del JSON. Cada jornada debe tener partidos válidos con horarios coincidentes entre ambos equipos."],
+            ["role" => "system", "content" => "Responde estrictamente en JSON con el formato solicitado."],
             ["role" => "user", "content" => $prompt . "\n\n" . json_encode($detailResponse, JSON_PRETTY_PRINT)]
         ];
 
-        $apiKey = env('OPENROUTER_API_KEY');
-
         $response = Http::withHeaders([
-            "Authorization" => "Bearer $apiKey",
-            "Content-Type" => "application/json",
-            "HTTP-Referer" => "https://metrosport.example.com"
+            "Authorization" => "Bearer " . env('OPENROUTER_API_KEY'),
+            "Content-Type" => "application/json"
         ])->timeout(300)->post("https://openrouter.ai/api/v1/chat/completions", [
             "model" => "mistralai/mistral-small-3.1-24b-instruct:free",
             "messages" => $messages,
@@ -315,76 +298,23 @@ EOT;
 
         $json = $response->json();
 
-        if (!isset($json['choices']) || !isset($json['choices'][0]['message']['content'])) {
-            return response()->json([
-                'error' => 'Respuesta inválida de OpenRouter',
-                'response' => $json
-            ], 500);
+        if (!isset($json['choices'][0]['message']['content'])) {
+            return response()->json(['error' => 'Respuesta inválida de OpenRouter'], 500);
         }
 
         $content = $json['choices'][0]['message']['content'];
-        \Log::info('Contenido original:', ['content' => $content]);
-
-        if (preg_match('/(\{(?:[^{}]|(?R))*\})/s', $content, $matches)) {
-            $jsonContent = $matches[0];
-            \Log::info('JSON extraído con regex:', ['content' => $jsonContent]);
-        } else {
-            $jsonContent = preg_replace('/^```json\n|^```json|^```$|\n```$/m', '', trim($content));
-            $jsonContent = preg_replace('/^[^{]*(\{.*\})[^}]*$/s', '$1', $jsonContent);
-            \Log::info('JSON limpiado:', ['content' => $jsonContent]);
-        }
 
         try {
-            $parsed = json_decode($jsonContent, true, 512, JSON_THROW_ON_ERROR);
+            $parsed = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
 
             if (!isset($parsed['calendario'])) {
-                foreach ($parsed as $key => $value) {
-                    if (is_array($value) && isset($value['calendario'])) {
-                        $parsed = $value;
-                        break;
-                    }
-                }
+                throw new \Exception('El calendario generado no contiene todas las jornadas necesarias.');
             }
-
-            if (!isset($parsed['calendario']) || count($parsed['calendario']) < $jornadasNecesarias) {
-                return response()->json([
-                    'error' => 'El calendario generado no contiene todas las jornadas necesarias',
-                    'jornadasEsperadas' => $jornadasNecesarias,
-                    'jornadasRecibidas' => isset($parsed['calendario']) ? count($parsed['calendario']) : 0,
-                    'calendario' => $parsed
-                ], 422);
-            }
-
-            // Guardar el calendario en la base de datos
-            $resultadoGuardado = $this->guardarCalendario($id, $parsed);
-
-            // Añadir información del guardado a la respuesta
-            $parsed['resultado_guardado'] = $resultadoGuardado;
 
             return response()->json($parsed);
         } catch (\Throwable $e) {
-            if (preg_match_all('/\{(?:[^{}]|(?R))*\}/s', $content, $allMatches)) {
-                usort($allMatches[0], function ($a, $b) {
-                    return strlen($b) - strlen($a);
-                });
-
-                foreach ($allMatches[0] as $potentialJson) {
-                    try {
-                        $candidate = json_decode($potentialJson, true, 512, JSON_THROW_ON_ERROR);
-                        if (isset($candidate['calendario'])) {
-                            return response()->json($candidate);
-                        }
-                    } catch (\Throwable $innerE) {
-                        continue;
-                    }
-                }
-            }
-
-            return response()->json([
-                'error' => 'Error al parsear JSON del modelo',
-                'raw' => $content,
-                'message' => $e->getMessage()
-            ], 500);
+            \Log::error('Error al procesar la respuesta de OpenRouter', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Error al procesar la respuesta de OpenRouter'], 500);
         }
     }
 
@@ -704,9 +634,6 @@ EOT;
             // Verificar que la liga existe
             $liga = Lliga::find($id);
             if (!$liga) {
-                if (request()->ajax()) {
-                    return response()->json(['success' => false, 'message' => 'Liga no encontrada'], 404);
-                }
                 return redirect()->back()->with('error', 'Liga no encontrada');
             }
 
@@ -715,44 +642,23 @@ EOT;
             $equipo = Equip::where('usuari_id_usuari', $usuarioId)->first();
 
             if (!$equipo) {
-                if (request()->ajax()) {
-                    return response()->json(['success' => false, 'message' => 'No tienes un equipo creado'], 400);
-                }
                 return redirect()->back()->with('error', 'No tienes un equipo creado');
             }
 
             // Verificar que no está inscrito ya en esta liga
             $yaInscrito = $liga->equips()->where('usuari_id_usuari', $usuarioId)->exists();
             if ($yaInscrito) {
-                if (request()->ajax()) {
-                    return response()->json(['success' => false, 'message' => 'Ya estás inscrito en esta liga'], 400);
-                }
                 return redirect()->back()->with('error', 'Ya estás inscrito en esta liga');
             }
 
             // Verificar que no está inscrito en otra liga
             if ($equipo->lliga_id_lliga && $equipo->lliga_id_lliga != $id) {
-                if (request()->ajax()) {
-                    return response()->json(['success' => false, 'message' => 'Ya estás inscrito en otra liga. No puedes participar en múltiples ligas simultáneamente.'], 400);
-                }
-                return redirect()->back()->with('error', 'Ya estás inscrito en otra liga. No puedes participar en múltiples ligas simultáneamente.');
+                return redirect()->back()->with('error', 'Ya estás inscrito en otra liga');
             }
 
             // Verificar si la liga está completa
             if ($liga->participants_actualment >= $liga->nro_equips_participants) {
-                if (request()->ajax()) {
-                    return response()->json(['success' => false, 'message' => 'Esta liga ya está completa. No se pueden aceptar más inscripciones.'], 400);
-                }
-                return redirect()->back()->with('error', 'Esta liga ya está completa. No se pueden aceptar más inscripciones.');
-            }
-
-            // Verificar compatibilidad
-            $compatibilidad = $this->verificarCompatibilidadUnirse($id)->getData(true);
-            if (!$compatibilidad['compatible']) {
-                if (request()->ajax()) {
-                    return response()->json(['success' => false, 'message' => $compatibilidad['mensaje']], 400);
-                }
-                return redirect()->back()->with('error', $compatibilidad['mensaje']);
+                return redirect()->back()->with('error', 'Esta liga ya está completa');
             }
 
             // Actualizar el equipo con el ID de la liga
@@ -761,9 +667,9 @@ EOT;
 
             // Incrementar contador de participantes
             $liga->participants_actualment = ($liga->participants_actualment ?? 0) + 1;
-            $liga->save(); // Guardar el cambio en la base de datos
+            $liga->save();
 
-            // Crear notificación
+            // Crear notificación para el equipo inscrito
             Notificacions::create([
                 'missatge_notificacio' => "Te has inscrito correctamente en la liga: {$liga->nom_lliga}",
                 'equip_usuari_id_usuari' => $usuarioId,
@@ -771,11 +677,10 @@ EOT;
                 'tipus_notificacio' => 2 // Tipo 2 para inscripción
             ]);
 
+            // Verificar si todos los equipos están inscritos
             if ($liga->participants_actualment == $liga->nro_equips_participants) {
-                // Obtener todos los equipos inscritos en la liga
+                // Crear notificación para todos los equipos
                 $equipos = Equip::where('lliga_id_lliga', $id)->get();
-
-                // Enviar notificación a todos los equipos
                 foreach ($equipos as $equipoInscrito) {
                     Notificacions::create([
                         'missatge_notificacio' => "¡Todos los equipos se han inscrito en la liga: {$liga->nom_lliga}! Prepárate para los partidos.",
@@ -784,21 +689,16 @@ EOT;
                         'tipus_notificacio' => 3 // Tipo 3 para notificación de liga completa
                     ]);
                 }
+
+                // Llamar a la función para generar y guardar las jornadas
+                $resultado = $this->generarYGuardarJornadas($id);
+
+                if (!$resultado['success']) {
+                    return redirect()->back()->with('error', $resultado['message']);
+                }
             }
 
-
-
-            // Responder con éxito si es una solicitud AJAX
-            if (request()->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => '¡Te has inscrito correctamente a la liga!',
-                    'lliga' => $liga
-                ]);
-            }
-
-            // Redirigir con éxito si no es una solicitud AJAX
-            return redirect()->back()->with('success', '¡Te has inscrito correctamente a la liga!');
+            return redirect()->route('classificacio', ['id' => $id])->with('success', '¡Te has inscrito correctamente a la liga!');
         } catch (\Exception $e) {
             \Log::error('Error al inscribirse en liga', [
                 'error' => $e->getMessage(),
@@ -806,16 +706,96 @@ EOT;
                 'usuario_id' => auth()->user()->id_usuari
             ]);
 
-            // Responder con error si es una solicitud AJAX
-            if (request()->ajax()) {
-                return response()->json([
+            return redirect()->back()->with('error', 'Error al inscribirse en la liga');
+        }
+    }
+
+    public function generarYGuardarJornadas($id)
+    {
+        try {
+            // Llamar a OpenRouter para generar las jornadas
+            $response = $this->callOpenRouter($id);
+
+            // Verificar si la respuesta contiene el calendario
+            if (!isset($response->getData(true)['calendario'])) {
+                \Log::error('Error: No se generó un calendario válido para la liga.', ['liga_id' => $id]);
+                return [
                     'success' => false,
-                    'message' => 'Error al inscribirse en la liga: ' . $e->getMessage()
-                ], 500);
+                    'message' => 'No se pudo generar el calendario para la liga.'
+                ];
             }
 
-            // Redirigir con error si no es una solicitud AJAX
-            return redirect()->back()->with('error', 'Error al inscribirse en la liga');
+            $calendario = $response->getData(true)['calendario'];
+
+            // Guardar el calendario en la base de dato
+
+            // Verificar si se guardaron los partidos correctamente
+            if (!$resultadoGuardado['success']) {
+                \Log::error('Error al guardar el calendario en la base de datos.', [
+                    'liga_id' => $id,
+                    'errores' => $resultadoGuardado['stats']['errores']
+                ]);
+                return [
+                    'success' => false,
+                    'message' => 'Error al guardar el calendario en la base de datos.'
+                ];
+            }
+
+            return [
+                'success' => true,
+                'message' => 'Jornadas generadas y guardadas correctamente.',
+                'stats' => $resultadoGuardado['stats']
+            ];
+        } catch (\Exception $e) {
+            \Log::error('Error en generarYGuardarJornadas', [
+                'error' => $e->getMessage(),
+                'liga_id' => $id
+            ]);
+
+            return [
+                'success' => false,
+                'message' => 'Error al generar y guardar las jornadas: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function mostrarClassificacio($id)
+    {
+        try {
+            // Verificar que la liga existe
+            $liga = Lliga::find($id);
+
+            if (!$liga) {
+                return redirect()->back()->with('error', 'Liga no encontrada');
+            }
+
+            // Obtener los partidos de la liga con los equipos locales y visitantes
+            $partidos = Partit::with(['ubicacio', 'estat', 'diaHora'])
+                ->where('lliga_id_lliga', $id)
+                ->get()
+                ->map(function ($partido) {
+                    // Obtener los equipos locales y visitantes desde partit_has_equip
+                    $equipos = PartitHasEquip::where('partit_id_partit', $partido->id_partit)
+                        ->where('partit_lliga_id_lliga', $partido->lliga_id_lliga)
+                        ->get();
+
+                    $partido->local = $equipos->firstWhere('local_visitant', 'local')?->equip;
+                    $partido->visitant = $equipos->firstWhere('local_visitant', 'visitant')?->equip;
+
+                    return $partido;
+                });
+
+            return view('lligues.classificacio', [
+                'liga' => $liga,
+                'partidos' => $partidos
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error al mostrar clasificación', [
+                'error' => $e->getMessage(),
+                'liga_id' => $id
+            ]);
+
+            return redirect()->back()->with('error', 'Error al cargar la clasificación');
         }
     }
 }
