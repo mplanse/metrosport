@@ -794,4 +794,27 @@ EOT;
             return redirect()->back()->with('error', 'Error al inscribirse en la liga');
         }
     }
+
+    public function mostrarClassificacio($id)
+    {
+        try {
+            // Obtener la liga por su ID
+            $liga = Lliga::findOrFail($id);
+
+            // Obtener los partidos de la liga con sus relaciones
+            $partidos = Partit::with([
+                'equips' => function ($query) {
+                    $query->select('nom_equip', 'pivot.local_visitant');
+                },
+                'diaHora',
+                'ubicacio'
+            ])->where('lliga_id_lliga', $id)->get();
+
+            // Pasar los datos a la vista
+            return view('lligues.classificacio', compact('liga', 'partidos'));
+        } catch (\Exception $e) {
+            \Log::error('Error al mostrar la clasificación: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'No se pudo cargar la clasificación.');
+        }
+    }
 }
