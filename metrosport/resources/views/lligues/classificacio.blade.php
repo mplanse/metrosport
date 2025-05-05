@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container mt-4">
-    <h1>Classificació de la Lliga: {{ $liga->nom_lliga }}</h1>
+    <h1>Jornades de la Lliga: {{ $liga->nom_lliga }}</h1>
 
     @if($partidos->isEmpty())
         <p class="text-center mt-4">Encara no hi ha partits programats per aquesta lliga.</p>

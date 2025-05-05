@@ -226,7 +226,7 @@ EOT;
                 "Authorization" => "Bearer $apiKey",
                 "Content-Type" => "application/json",
                 "HTTP-Referer" => "https://metrosport.example.com"
-            ])->timeout(300)->post("https://openrouter.ai/api/v1/chat/completions", [
+            ])->timeout(6000)->post("https://openrouter.ai/api/v1/chat/completions", [
                 "model" => "mistralai/mistral-small-3.1-24b-instruct:free",
                 "messages" => $messages,
                 "max_tokens" => 20000,
