@@ -165,7 +165,7 @@ class LligaController extends Controller
 
         foreach ($lliga->equips as $equip) {
             // Disponibilitat horària (convertim cada DiaHora a array)
-            $disponibilitat = $equip->diaHoras->map(function($dh) {
+            $disponibilitat = $equip->diaHoras->map(function ($dh) {
                 return [
                     'dia' => $dh->dia,
                     'hora' => $dh->hora,
@@ -225,11 +225,11 @@ EOT;
                 "Content-Type" => "application/json",
                 "HTTP-Referer" => "https://metrosport.example.com"
             ])->timeout(6000)->post("https://openrouter.ai/api/v1/chat/completions", [
-                "model" => "mistralai/mistral-small-3.1-24b-instruct:free",
-                "messages" => $messages,
-                "max_tokens" => 20000,
-                "temperature" => 0.2
-            ]);
+                        "model" => "google/gemini-2.0-flash-001",
+                        "messages" => $messages,
+                        "max_tokens" => 120000,
+                        "temperature" => 0.2
+                    ]);
 
             $json = $response->json();
 
@@ -269,24 +269,24 @@ REQUISITOS CRÍTICOS:
 
 FORMATO ESTRICTO:
 {
-  "calendario": [
-    {
-      "jornada": 1,
-      "partidos": [
-        {
-          "equipo_local": "nombre_equipo",
-          "equipo_visitante": "nombre_equipo",
-          "dia": número_dia,
-          "hora": número_hora,
-          "ubicacion": "nombre_ubicacion"
-        }
-      ]
-    },
-    {
-      "jornada": 2,
-      "partidos": [...]
-    }
-  ]
+ "calendario": [
+ {
+ "jornada": 1,
+ "partidos": [
+ {
+ "equipo_local": "nombre_equipo",
+ "equipo_visitante": "nombre_equipo",
+ "dia": número_dia,
+ "hora": número_hora,
+ "ubicacion": "nombre_ubicacion"
+ }
+ ]
+ },
+ {
+ "jornada": 2,
+ "partidos": [...]
+ }
+ ]
 }
 
 IMPORTANTE:
@@ -307,11 +307,11 @@ EOT;
             "Content-Type" => "application/json",
             "HTTP-Referer" => "https://metrosport.example.com"
         ])->timeout(300)->post("https://openrouter.ai/api/v1/chat/completions", [
-            "model" => "mistralai/mistral-small-3.1-24b-instruct:free",
-            "messages" => $messages,
-            "max_tokens" => 94000,
-            "temperature" => 0.2
-        ]);
+                    "model" => "google/gemini-2.0-flash-001",
+                    "messages" => $messages,
+                    "max_tokens" => 120000,
+                    "temperature" => 0.2
+                ]);
 
         $json = $response->json();
 
@@ -562,9 +562,9 @@ EOT;
         }
 
         // Obtener la disponibilidad horaria del equipo del usuario
-        $disponibilidadUsuario = DiaHora::whereHas('equips', function($query) use ($usuarioId) {
+        $disponibilidadUsuario = DiaHora::whereHas('equips', function ($query) use ($usuarioId) {
             $query->where('equip_usuari_id_usuari', $usuarioId);
-        })->get()->map(function($dh) {
+        })->get()->map(function ($dh) {
             return [
                 'dia' => $dh->dia,
                 'hora' => $dh->hora
@@ -631,8 +631,8 @@ ANÁLISIS REQUERIDO:
 
 FORMATO DE RESPUESTA REQUERIDO (JSON):
 {
-  "compatible": true/false,
-  "mensaje": "Explicación simple para el usuario"
+ "compatible": true/false,
+ "mensaje": "Explicación simple para el usuario"
 }
 
 IMPORTANTE: Solo necesito saber si puede unirse (true) o no (false), y un mensaje simple para el usuario.
@@ -650,11 +650,11 @@ EOT;
             "Content-Type" => "application/json",
             "HTTP-Referer" => "https://metrosport.example.com"
         ])->timeout(60)->post("https://openrouter.ai/api/v1/chat/completions", [
-            "model" => "mistralai/mistral-small-3.1-24b-instruct:free",
-            "messages" => $messages,
-            "max_tokens" => 500,
-            "temperature" => 0.2
-        ]);
+                    "model" => "google/gemini-2.0-flash-001",
+                    "messages" => $messages,
+                    "max_tokens" => 120000,
+                    "temperature" => 0.2
+                ]);
 
         $json = $response->json();
 
@@ -801,17 +801,22 @@ EOT;
             // Obtener la liga por su ID
             $liga = Lliga::findOrFail($id);
 
-            // Obtener los partidos de la liga con sus relaciones
+            // Obtener los partidos de la liga
             $partidos = Partit::with([
                 'equips' => function ($query) {
-                    $query->select('nom_equip', 'pivot.local_visitant');
+                    $query->select('equip.nom_equip', 'partit_has_equip.local_visitant', 'partit_has_equip.gols');
                 },
                 'diaHora',
                 'ubicacio'
-            ])->where('lliga_id_lliga', $id)->get();
+            ])
+            ->where('lliga_id_lliga', $id)
+            ->get();
+
+            // Agrupar los partidos por jornada para evitar duplicados
+            $partidosAgrupados = $partidos->groupBy('jornada');
 
             // Pasar los datos a la vista
-            return view('lligues.classificacio', compact('liga', 'partidos'));
+            return view('lligues.classificacio', compact('liga', 'partidosAgrupados'));
         } catch (\Exception $e) {
             \Log::error('Error al mostrar la clasificación: ' . $e->getMessage());
             return redirect()->back()->with('error', 'No se pudo cargar la clasificación.');
