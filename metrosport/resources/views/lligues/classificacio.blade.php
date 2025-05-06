@@ -17,6 +17,7 @@
                     <th>Equip Visitant</th>
                     <th>Dia</th>
                     <th>Hora</th>
+                    <th>Data</th> {{-- Nueva columna --}}
                     <th>Ubicació</th>
                 </tr>
             </thead>
@@ -47,6 +48,7 @@
                             <td>{{ $equipVisitant->nom_equip ?? 'N/A' }}</td>
                             <td>{{ $diasSemana[$partido->diaHora->dia] ?? 'N/A' }}</td>
                             <td>{{ $partido->diaHora->hora ?? 'N/A' }}:00</td>
+                            <td>{{ $partido->data ?? 'N/A' }}</td> {{-- Mostrar la fecha --}}
                             <td>{{ $partido->ubicacio->nom_ubicacio ?? 'N/A' }}</td>
                         </tr>
                         @endif
