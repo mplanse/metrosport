@@ -64,7 +64,6 @@ class Partit extends Model
             'partit_id_partit',
             'equip_usuari_id_usuari'
         )
-        ->withPivot('gols', 'local_visitant')
-        ->wherePivot('partit_lliga_id_lliga', $this->lliga_id_lliga);
+        ->withPivot('partit_lliga_id_lliga', 'gols', 'local_visitant'); // Incluye todas las columnas necesarias de la tabla intermedia
     }
 }
