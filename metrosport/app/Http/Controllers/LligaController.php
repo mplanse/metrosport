@@ -257,6 +257,9 @@ EOT;
         $totalPartidos = $equipos * ($equipos - 1); // ida y vuelta
         $jornadasNecesarias = ceil($totalPartidos / ($equipos / 2)); // 4 partidos por jornada
 
+        // Obtener la fecha actual
+        $fechaHoy = Carbon::now()->format('Y-m-d');
+
         $prompt = <<<EOT
 Eres un generador experto de calendarios deportivos para torneos de liga (doble round-robin). Recibirás información de una liga con $equipos equipos.
 
@@ -266,6 +269,7 @@ REQUISITOS CRÍTICOS:
 3. El campo de juego debe ser la UBICACIÓN del equipo local.
 4. Cada jornada debe tener exactamente ${equipos}/2 partidos (ej: 4 si hay 8 equipos).
 5. Debes generar EXACTAMENTE $jornadasNecesarias jornadas, enumeradas de 1 a $jornadasNecesarias.
+6. Cada partido debe incluir una fecha (`data`) calculada a partir de la fecha de hoy ($fechaHoy). Las jornadas deben ser consecutivas, con al menos 1 día de diferencia entre jornadas.
 
 FORMATO ESTRICTO:
 {
@@ -278,7 +282,8 @@ FORMATO ESTRICTO:
  "equipo_visitante": "nombre_equipo",
  "dia": número_dia,
  "hora": número_hora,
- "ubicacion": "nombre_ubicacion"
+ "ubicacion": "nombre_ubicacion",
+ "data": "YYYY-MM-DD"
  }
  ]
  },
@@ -296,7 +301,7 @@ IMPORTANTE:
 EOT;
 
         $messages = [
-            ["role" => "system", "content" => "Responde estrictamente en JSON. No incluyas ningún texto fuera del JSON. Cada jornada debe tener partidos válidos con horarios coincidentes entre ambos equipos."],
+            ["role" => "system", "content" => "Responde estrictamente en JSON con el formato solicitado."],
             ["role" => "user", "content" => $prompt . "\n\n" . json_encode($detailResponse, JSON_PRETTY_PRINT)]
         ];
 
@@ -363,23 +368,6 @@ EOT;
 
             return response()->json($parsed);
         } catch (\Throwable $e) {
-            if (preg_match_all('/\{(?:[^{}]|(?R))*\}/s', $content, $allMatches)) {
-                usort($allMatches[0], function ($a, $b) {
-                    return strlen($b) - strlen($a);
-                });
-
-                foreach ($allMatches[0] as $potentialJson) {
-                    try {
-                        $candidate = json_decode($potentialJson, true, 512, JSON_THROW_ON_ERROR);
-                        if (isset($candidate['calendario'])) {
-                            return response()->json($candidate);
-                        }
-                    } catch (\Throwable $innerE) {
-                        continue;
-                    }
-                }
-            }
-
             return response()->json([
                 'error' => 'Error al parsear JSON del modelo',
                 'raw' => $content,
@@ -476,6 +464,7 @@ EOT;
                     $partidoModel->ubicacio_camp_id_ubicacio_camp = $ubicacion->id_ubicacio_camp;
                     $partidoModel->lliga_id_lliga = $lligaId;
                     $partidoModel->dia_hora_id = $diaHora->id; // Asignar el ID de dia_hora
+                    $partidoModel->data = $partido['data']; // Guardar la fecha del partido
                     $partidoModel->save();
 
                     // 5. Insertar en la tabla partit_has_equip para el equipo local
@@ -809,8 +798,8 @@ EOT;
                 'diaHora',
                 'ubicacio'
             ])
-            ->where('lliga_id_lliga', $id)
-            ->get();
+                ->where('lliga_id_lliga', $id)
+                ->get();
 
             // Agrupar los partidos por jornada para evitar duplicados
             $partidosAgrupados = $partidos->groupBy('jornada');
